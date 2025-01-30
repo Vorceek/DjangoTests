@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "timesheet"
+version = "0.1.0"
+description = ""
+authors = ["Vinicios <vorceek@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+django = "^5.1.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
