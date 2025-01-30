@@ -1,0 +1,21 @@
+{% load static %}   
+    
+<!-- Aside -->
+
+<aside>
+    <a href="#"><img src="{% static 'partials/img/Branca.svg' %}" alt="o-dome" id="logo-dome"></a></li>
+
+    <div class="aside-content">
+        <ul class="aside-ul-content">
+
+
+            <li><a href="#"><i class="fa-solid fa-business-time"></i></a></li>
+
+            {% if user.is_authenticated %}
+            {% if is_admin %}
+            <li><a href="#"><i class="fa-solid fa-cloud-arrow-up"></i></a></li>
+            {% endif %}
+            {% endif %}
+        </ul>
+    </div>
+</aside> 

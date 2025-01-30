@@ -1,0 +1,37 @@
+{% load static %}
+
+<!-- Header e Nav -->
+
+<header>
+    <nav>
+
+        <!-- Parte Esquerda Nav -->
+
+        <div class="div-nav-left">
+            <div class="div-menu-left">
+                <h1>Suas Atividades</h1>
+            </div>   
+        </div>
+
+        <!-- Parte Direita Nav -->
+
+        <div class="div-nav-right">
+            <div class="div-user-nav">
+                <ul>
+                    <li><h1>Olá, {{ user.username|capfirst }}</h1></li>
+
+                            <!-- Formulário Sair-->
+
+                    <form action="#" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" id="btn-sair">
+                            <i class="fa-solid fa-right-from-bracket" id="exit-menu"></i>
+                        </button>
+                    </form>
+
+                </ul>  
+            </div>
+            </div>
+        </div>
+    </nav>
+</header>

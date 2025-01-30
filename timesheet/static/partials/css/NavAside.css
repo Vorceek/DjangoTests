@@ -1,0 +1,160 @@
+body {
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+    font-family: 'Arial', sans-serif;
+    background-color: #383838;
+    color: #cacaca;
+}
+
+/* Nav */
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #424244;
+    border-bottom: 1px solid white ;
+    padding-bottom: 5px;
+    margin-left: auto;
+    height: 55px;
+    width: 95%;
+    z-index: 1;
+}
+
+/* Nav Esquerdo */
+
+.div-nav-left {
+    margin-left: 15px;
+    align-items: center;
+}
+
+/* Nav Direito */
+
+.div-nav-right {
+    margin-right: 20px;
+}
+
+.div-user-nav {
+    align-items: center;
+}
+
+.div-user-nav ul {
+    display: flex;
+    align-items: center;
+    list-style-type: none;
+    font-size: 12px;
+    gap: 35px;
+}
+
+.div-user-nav h1 {
+    align-items: center;
+}
+
+#exit-menu {
+    font-size: 30px;
+    color: white;
+}
+
+#btn-sair {
+    background-color: transparent;
+    border: none;
+}
+
+.button-color-of-view {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+#color-of-view {
+    font-size: 30px;
+    color: white;
+}
+
+/* Aside */
+
+aside {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+
+    top: 0;
+    left: 0;
+    width: 5%;
+    height: 100vh;
+    background-color: #1b1818;
+
+    position: fixed;
+    z-index: 2;
+}
+
+aside ul img {
+    margin-top: 28px;
+    height: 45px;
+}
+
+aside ul i {
+    font-size: 30px;
+    color: white;
+    margin-bottom: 25px;
+    margin-top: 15px;
+}
+
+#soma-icon {
+    font-size: 35px;
+}
+
+.aside-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+}
+
+.aside-ul-content {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    margin-bottom: 700px;
+}
+
+#logo-dome {
+    padding-top: 12px;
+    height: 45px;
+}
+
+/* MAIN */
+
+main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.page-links {
+    display: flex;
+    gap: 10px; /* Espaço entre os links */
+}
+
+.page-links a {
+    text-decoration: none; /* Remove o sublinhado */
+    color: #009688; /* Cor dos links */
+    padding: 5px 10px; /* Espaçamento interno dos links */
+    border-radius: 5px; /* Arredondamento das bordas */
+    background-color: #424244; /* Cor de fundo dos links */
+    transition: background-color 0.3s ease; /* Efeito de transição */
+}
+
+.page-links a:hover {
+    background-color: #009688; /* Cor de fundo ao passar o mouse */
+    color: white; /* Cor do texto ao passar o mouse */
+}
+
+select {
+    background-color: #fff; /* Cor de fundo branca */
+    color: #000; /* Texto preto */
+}
+
