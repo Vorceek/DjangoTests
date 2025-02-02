@@ -3,6 +3,7 @@ from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.views.generic.base import TemplateView
+from .permissions import redirect_based_on_group
 
 class SemAcessoView(TemplateView):
     template_name = 'login/semAcesso.html'
@@ -12,22 +13,29 @@ class CustomLoginView(View):
     def get(self, request):
 
         if request.user.is_authenticated:
-            return redirect('home')
+            return redirect_based_on_group(request.user)
+        
         return render(request, 'login/login.html')
     
     def post(self, request):
 
         username = request.POST.get('username')
         password = request.POST.get('password')
+        remember_me = request.POST.get('remember_me', False)
 
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
             login(request, user)
 
-            if user.groups.filter(name ='ADMINISTRADOR').exists(): return redirect('hub')
-            elif user.groups.filter(name = 'USER').exists(): return redirect('home')
-            else: return redirect('semAcesso')
+            if remember_me:
+
+                request.session.set_expiry(1209600)  # 2 semanas de sessão
+                response = redirect('home')  # Redireciona para a página inicial
+                response.set_cookie('username', username, max_age=1209600)
+                return response
+            
+            else: return redirect_based_on_group(self, user)
 
         else:
             messages.error(request, 'Credenciais inválidas. Tente novamente.')

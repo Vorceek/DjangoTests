@@ -101,6 +101,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+LOGIN_URL = '/accounts/login'
+
 # LANGUAGE CODE
 
 LANGUAGE_CODE = 'pt-br'

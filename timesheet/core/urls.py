@@ -5,7 +5,7 @@ from apps.base_app.views import CustomLoginView, SemAcessoView, LogoutAction
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    path('accounts/login/', CustomLoginView.as_view(), name='login'),
+    path('', CustomLoginView.as_view(), name='login'),
     path('accounts/logout/', LogoutAction.as_view(), name='logout'),
     path('sem-acesso/', SemAcessoView.as_view(), name='semAcesso'),
 
