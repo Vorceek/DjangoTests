@@ -1,0 +1,69 @@
+/* Estilos básicos de redefinição */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: url('https://domeconsultoria.com.br/wp-content/uploads/2024/03/bg-home-min.jpg') no-repeat center center fixed;
+    background-size: cover; /* Faz a imagem de fundo cobrir a tela */
+    height: 100vh; /* Ocupa a altura total da visualização */
+    display: flex;
+    justify-content: center; /* Centraliza o container horizontalmente */
+    align-items: center; /* Centraliza o container verticalmente */
+}
+
+.error-container {
+    display: flex;
+    justify-content: center; /* Centraliza o conteúdo dentro do container */
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+}
+
+.error-content {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.7); /* Fundo branco com transparência */
+    backdrop-filter: blur(10px); /* Efeito de desfoque para o fundo do container */
+    -webkit-backdrop-filter: blur(10px); /* Compatibilidade com WebKit browsers */
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Sombra para destacar o conteúdo */
+    max-width: 500px;
+    width: 100%;
+}
+
+.logo-container {
+    margin-bottom: 20px; /* Espaçamento abaixo da logo */
+}
+
+.error-logo {
+    width: 130px; /* Ajuste o tamanho da logo conforme necessário */
+    height: auto;
+}
+
+.error-content h1 {
+    color: #ff4d4d;
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.error-content p {
+    color: #333;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.home-button {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background: #007bff;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background 0.3s;
+}
+
+.home-button:hover {
+    background: #0056b3;
+}

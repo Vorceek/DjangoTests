@@ -1,0 +1,23 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acesso Negado</title>
+    <link rel="stylesheet" href="{% static 'login/css/semAcesso.css' %}">
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-content">
+            <div class="logo-container">
+                <img src="{% static 'login/image/11.png' %}" alt="Logo" class="error-logo">
+            </div>
+            <h1>403</h1>
+            <p>Você não tem permissão para acessar esta página.</p>
+            <a href="{% url 'login' %}" class="home-button">Voltar para Login</a>
+        </div>
+    </div>
+</body>
+</html>

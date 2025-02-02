@@ -1,3 +1,6 @@
-from django.shortcuts import render
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from apps.base_app.permissions import AdminRequiredMixin
 
-# Create your views here.
+class AdminView(LoginRequiredMixin, AdminRequiredMixin, TemplateView):
+    template_name = "admin/hub.html"
