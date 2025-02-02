@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'apps.base_app',
     'apps.user_app',
     'apps.admin_app',
+    'apps.atividade_app',
 ]
 
 
