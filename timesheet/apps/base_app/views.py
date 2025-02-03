@@ -28,7 +28,7 @@ class CustomLoginView(View):
             if remember_me:
 
                 request.session.set_expiry(1209600)  # 2 semanas de sessão
-                response = redirect('home')  # Redireciona para a página inicial
+                response = redirect_based_on_group(user)
                 response.set_cookie('username', username, max_age=1209600)
                 return response
             
