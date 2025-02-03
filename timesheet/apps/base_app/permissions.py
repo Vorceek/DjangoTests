@@ -11,10 +11,10 @@ class AdminRequiredMixin(UserPassesTestMixin):
     def handle_no_permission(self):
         return redirect('semAcesso')
     
-def redirect_based_on_group(self, user):
+def redirect_based_on_group(user):
         
     # Método auxiliar que realiza o redirecionamento com base no grupo do usuário.
-        
+
     if user.groups.filter(name='ADMINISTRADOR').exists():
         return redirect('hub')
     elif user.groups.filter(name='USER').exists():

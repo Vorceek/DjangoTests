@@ -10,12 +10,9 @@ class SemAcessoView(TemplateView):
 
 class CustomLoginView(View):
 
-    def get(self, request):
-
-        if request.user.is_authenticated:
-            return redirect_based_on_group(request.user)
-        
+    def get(self, request, *args, **kwargs):
         return render(request, 'login/login.html')
+    
     
     def post(self, request):
 
@@ -35,7 +32,7 @@ class CustomLoginView(View):
                 response.set_cookie('username', username, max_age=1209600)
                 return response
             
-            else: return redirect_based_on_group(self, user)
+            else: return redirect_based_on_group(user)
 
         else:
             messages.error(request, 'Credenciais inválidas. Tente novamente.')
