@@ -11,4 +11,5 @@ urlpatterns = [
 
     path('user-base/', include('apps.user_app.urls')),
     path('admin-base/', include('apps.admin_app.urls')),
+    path('atividade/', include('apps.atividade_app.urls', namespace='atividade_app')),
 ]

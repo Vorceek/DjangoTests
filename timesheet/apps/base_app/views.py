@@ -44,3 +44,4 @@ class LogoutAction(View):
         if request.user.is_authenticated:
             logout(request)  # Encerra a sessão do usuário
         return redirect('login')  # Redireciona para a página de login
+    

@@ -1,5 +1,300 @@
 {% extends 'theme/base.html' %}
 {% load static %}
 {% block content %}
-<h1>TESTE USER PAGE</h1>
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'user/css/adicionar_atividade.css' %}">
+<link rel="stylesheet" href="{% static 'user/css/table.css' %}">
+<link rel="stylesheet" href="{% static 'user/css/minhas_atividades.css' %}">
+<link rel="stylesheet" href="{% static 'user/css/modal.css' %}">
+{% endblock %}
+
+<table>
+    <thead>
+        <tr class="atividade-topo">
+            <!-- Linha de botão Adicionar Atividade -->
+            <th colspan="6" class="top_buttons">
+                <!-- BOTÃO MODAL E FINALIZAR ATIVIDADE -->
+                <div class="atividade-right">
+                    <div class="atividade-left">
+                        <form method="POST" class="form-add">
+                            {% csrf_token %}
+                            <!-- Campo Cliente -->
+                            <select name="RAM_cliente" id="id_cliente">
+                                <option value="" disabled selected>Selecione o Cliente</option>
+                                {% for cliente in clientes %}
+                                    <option value="{{ cliente.id }}">{{ cliente.nome }}</option>
+                                {% endfor %}
+                            </select>
+                            <!-- Campo Serviço -->
+                            <select name="RAM_servico" id="id_servico">
+                                <option value="" disabled selected>Selecione o Serviço</option>
+                                {% for servico in servicos %}
+                                    <option value="{{ servico.id }}">{{ servico.nome }}</option>
+                                {% endfor %}
+                            </select>
+                            <!-- Campo Atividade -->
+                            <select name="RAM_atividade" id="id_atividade">
+                                <option value="" disabled selected>Selecione a Atividade</option>
+                                {% for atividade in atividades %}
+                                    <option value="{{ atividade.id }}">{{ atividade.nome }}</option>
+                                {% endfor %}
+                            </select>
+                            <button class="botao-add-form" type="submit">Registrar Atividade</button>
+                        </form>
+                        
+                        {% for atividade in page_obj %}
+                            {% if atividade.RAM_ativo %}
+                                <button 
+                                    class="btn-finalizar-atividade" 
+                                    data-id="{{ atividade.id }}" 
+                                    onclick="finalizarAtividadePorElemento(this)">
+                                    Finalizar Atividade
+                                </button>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </th>
+        </tr>
+        <tr>
+            <th>Cliente</th>
+            <th>Serviço</th>
+            <th>Atividade</th>
+            <th>Data Inicial</th>
+            <th>Data Final</th>
+            <th>Duração</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for atividade in page_obj %}
+        <tr>
+            <td>{{ atividade.RAM_cliente }}</td>
+            <td>{{ atividade.RAM_servico }}</td>
+            <td>{{ atividade.RAM_atividade }}</td>
+            <td>{{ atividade.RAM_dataInicial|date:"d/m/Y H:i"|default:"-" }}</td>
+            
+            <!-- Campo oculto para verificar se a atividade está ativa -->
+            <td id="atividade_ativo_{{ atividade.id }}" style="display: none;">
+                {{ atividade.RAM_ativo }}
+            </td>
+            <td id="data_final_{{ atividade.id }}">
+                {{ atividade.RAM_dataFinal|date:"d/m/Y H:i"|default:"Atividade Ativa" }}
+            </td>
+            <td id="duracao_{{ atividade.id }}">
+                {{ atividade.duracao_formatada }}
+            </td>
+            <!-- Campo oculto para a hora de início (usado pelo script) -->
+            <td id="hora_inicio_{{ atividade.id }}" style="display: none;">
+                {{ atividade.RAM_dataInicial|date:"Y-m-d H:i:s" }}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr style="background-color: transparent;">
+            <td colspan="5" style="text-align: right; font-weight: bold;">Total de Horas:</td>
+            <td>{{ total_duracao }}</td>
+        </tr>
+    </tfoot>
+</table>
+
+<!-- Paginação -->
+<div class="pagination">
+    <ul class="pagination-list">
+        {% if page_obj.has_previous %}
+            <li><a href="?page=1">&laquo; Primeira</a></li>
+            <li><a href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+        {% else %}
+            <li class="disabled">&laquo; Primeira</li>
+            <li class="disabled">Anterior</li>
+        {% endif %}
+
+        <li class="current">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</li>
+
+        {% if page_obj.has_next %}
+            <li><a href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
+            <li><a href="?page={{ page_obj.paginator.num_pages }}">Última &raquo;</a></li>
+        {% else %}
+            <li class="disabled">Próxima</li>
+            <li class="disabled">Última &raquo;</li>
+        {% endif %}
+    </ul>
+</div>
+</main>
+
+<!-- Script para carregar os selects via AJAX -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const clienteSelect = document.getElementById('id_cliente');
+    const servicoSelect = document.getElementById('id_servico');
+    const atividadeSelect = document.getElementById('id_atividade');
+    
+    servicoSelect.disabled = true;
+    atividadeSelect.disabled = true;
+    
+    clienteSelect.addEventListener('change', function() {
+        const selectedClienteId = this.value;
+        servicoSelect.innerHTML = '<option value="" disabled selected>Selecione o Serviço</option>';
+        atividadeSelect.innerHTML = '<option value="" disabled selected>Selecione a Atividade</option>';
+        servicoSelect.disabled = true;
+        atividadeSelect.disabled = true;
+        
+        fetch(`/atividade/ajax/servicos/${selectedClienteId}/`)
+            .then(response => {
+                if (!response.ok) throw new Error('Erro ao carregar os serviços.');
+                return response.json();
+            })
+            .then(data => {
+                if (data.servicos && Array.isArray(data.servicos) && data.servicos.length > 0) {
+                    const sortedServicos = data.servicos.sort((a, b) =>
+                        a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' })
+                    );
+                    sortedServicos.forEach(servico => {
+                        const option = document.createElement('option');
+                        option.value = servico.id;
+                        option.textContent = servico.nome;
+                        servicoSelect.appendChild(option);
+                    });
+                    servicoSelect.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao carregar serviços:', error);
+            });
+    });
+    
+    servicoSelect.addEventListener('change', function() {
+        const selectedServicoId = this.value;
+        atividadeSelect.innerHTML = '<option value="" disabled selected>Selecione a Atividade</option>';
+        atividadeSelect.disabled = true;
+        
+        fetch(`/atividade/ajax/atividades/${selectedServicoId}/`)
+            .then(response => {
+                if (!response.ok) throw new Error('Erro ao carregar as atividades.');
+                return response.json();
+            })
+            .then(data => {
+                if (data.atividades && Array.isArray(data.atividades) && data.atividades.length > 0) {
+                    const sortedAtividades = data.atividades.sort((a, b) =>
+                        a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' })
+                    );
+                    sortedAtividades.forEach(atividade => {
+                        const option = document.createElement('option');
+                        option.value = atividade.id;
+                        option.textContent = atividade.nome;
+                        atividadeSelect.appendChild(option);
+                    });
+                    atividadeSelect.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao carregar atividades:', error);
+            });
+    });
+});
+</script>
+
+<!-- Script para a contagem do tempo (timer) -->
+<script>
+document.addEventListener('DOMContentLoaded', iniciarContagem);
+    
+function iniciarContagem() {
+    // Seleciona todos os elementos cujo id inicia com "hora_inicio_"
+    const atividades = document.querySelectorAll('[id^="hora_inicio_"]');
+    
+    atividades.forEach(function(element) {
+        const atividadeId = element.id.split('_')[2];
+        const horaInicio = element.innerText.trim();
+        // Converte "YYYY-MM-DD HH:mm:ss" para "YYYY-MM-DDTHH:mm:ss" (formato ISO)
+        const horaInicioDate = new Date(horaInicio.replace(' ', 'T'));
+        
+        const ativoElement = document.getElementById(`atividade_ativo_${atividadeId}`);
+        const ativo = ativoElement && ativoElement.innerText.trim() === 'True';
+        if (!ativo) return;
+        
+        const intervalId = setInterval(function() {
+            const ativoElementAtual = document.getElementById(`atividade_ativo_${atividadeId}`);
+            const ativoAtual = ativoElementAtual && ativoElementAtual.innerText.trim() === 'True';
+            if (!ativoAtual) {
+                clearInterval(intervalId);
+                return;
+            }
+            
+            const tempoAtual = new Date();
+            const diffMilliseconds = tempoAtual - horaInicioDate;
+            const diffSeconds = Math.floor(diffMilliseconds / 1000);
+            const diffMinutes = Math.floor(diffSeconds / 60);
+            const diffHours = Math.floor(diffMinutes / 60);
+            const remainingMinutes = diffMinutes % 60;
+            const remainingSeconds = diffSeconds % 60;
+            
+            const formattedTime = 
+                String(diffHours).padStart(2, '0') + ':' +
+                String(remainingMinutes).padStart(2, '0') + ':' +
+                String(remainingSeconds).padStart(2, '0');
+            
+            const duracaoElement = document.getElementById(`duracao_${atividadeId}`);
+            if (duracaoElement) {
+                duracaoElement.innerText = formattedTime;
+            }
+        }, 1000);
+    });
+}
+</script>
+<script>
+    function finalizarAtividadePorElemento(buttonElement) {
+        // Desabilita o botão para evitar múltiplos cliques
+        buttonElement.disabled = true;
+        const atividadeId = buttonElement.getAttribute("data-id");
+    
+        fetch(`/atividade/finalizar/${atividadeId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ id: atividadeId })
+        })
+        .then(async response => {
+            const data = await response.json();
+            if (!response.ok) {
+                console.error('Erro na resposta:', data);
+                throw new Error('Erro na requisição: ' + response.status);
+            }
+            return data;
+        })
+        .then(data => {
+            if (data.success) {
+                // Atualiza o elemento que exibe a data final
+                const dataFinalElement = document.getElementById(`data_final_${atividadeId}`);
+                if (dataFinalElement) {
+                    dataFinalElement.innerText = data.dataFinal || 'Finalizado';
+                }
+                // Remove o botão e exibe status de finalizado
+                buttonElement.remove();
+                // Recarrega a página após um curto delay para atualizar a interface
+                setTimeout(() => {
+                    location.reload();
+                }, 500);
+            } else {
+                console.error('Finalização falhou:', data);
+                const statusElement = buttonElement.parentElement;
+                statusElement.innerHTML = '<span>Falha ao finalizar a atividade. Tente novamente.</span>';
+            }
+        })
+        .catch(error => {
+            console.error('Erro na finalização:', error);
+            const statusElement = buttonElement.parentElement;
+            statusElement.innerHTML = '<span>Ocorreu um erro inesperado. Tente novamente.</span>';
+        })
+        .finally(() => {
+            buttonElement.disabled = false;
+        });
+    }
+    </script>
+    
+    
+    
+
 {% endblock %}

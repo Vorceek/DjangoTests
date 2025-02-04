@@ -25,10 +25,13 @@
                 <input type="password" name="password" placeholder="Senha" required autocomplete="off">
 
                 {% if messages %}
-                    {% for message in messages %}
+                {% for message in messages %}
+                    {% if message.tags == "error" %}
                         <p style="color: red;">{{ message }}</p>
-                    {% endfor %}
+                    {% endif %}
+                {% endfor %}
                 {% endif %}
+            
 
                 <button type="submit">Entrar</button>
                 <div class="options">

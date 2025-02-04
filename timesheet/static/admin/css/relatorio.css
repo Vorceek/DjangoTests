@@ -1,0 +1,178 @@
+/* Estilo geral */
+#main-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    width: 80%;
+    max-width: 1200px;
+    margin: 50px auto;
+    margin-top: 5px;
+    padding-right: 30px;
+    padding-left: 30px;
+    background-color: #404040;
+
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    color: white;
+}
+
+.h1-gerar-relatorio {
+    margin: 0px;
+    padding-top: 15px;
+}
+
+.h2_atividades_filtradas {
+    display: flex;
+    padding: 0;
+    margin: 0;
+}
+
+/* Estilo dos filtros */
+.main-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.filter-group {
+    flex: 1 1 30%;
+    min-width: 250px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+input[type="text"],
+input[type="date"] {
+    padding: 10px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    background-color: #303030;
+    color: white;
+}
+
+input::placeholder {
+    color: #bbb;
+}
+
+.filter-list {
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 5px;
+    background-color: #383838;
+}
+
+/* Estilo dos botões */
+button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.form-actions {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* Estilo da tabela */
+.activity-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.activity-table th,
+.activity-table td {
+    padding: 5px;
+    border: 1px solid #555;
+    text-align: center;
+}
+
+.activity-table th {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+}
+
+.activity-table tr:nth-child(even) {
+    background-color: #505050;
+}
+
+.activity-table tr:nth-child(odd) {
+    background-color: #383838;
+}
+
+
+/* PAGINATION */
+
+.pagination {
+    display: flex;
+    justify-content: center; /* Centraliza a paginação */
+    align-items: center;
+    margin-top: 0px; /* Espaço acima da paginação */
+}
+
+.pagination-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    gap: 8px; /* Espaçamento entre os itens */
+}
+
+.pagination-list li {
+    display: inline;
+    padding: 5px 10px;
+    border-radius: 3px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.2s ease;
+}
+
+.pagination-list li a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.pagination-list li:hover {
+    background-color: #0056b3; /* Azul escurecido para hover */
+    color: white;
+}
+
+.pagination-list .current {
+    font-weight: bold;
+    background-color: #e9ecef;
+    color: #007bff;
+    cursor: default;
+}
+
+.pagination-list .disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #d6d6d6;
+}
+
+.btn-danger {
+    text-decoration: none;
+    color: #ffff;
+}

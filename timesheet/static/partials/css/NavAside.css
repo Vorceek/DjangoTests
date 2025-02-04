@@ -102,6 +102,11 @@ aside ul i {
     margin-top: 15px;
 }
 
+aside ul li {
+    display: flex;
+    justify-content: center;
+}
+
 #soma-icon {
     font-size: 35px;
 }

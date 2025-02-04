@@ -1,6 +1,8 @@
 from django.urls import path
-from .views import UserView
+from .views import GerenciarAtividadesView
+
+app_name = 'user_app'
 
 urlpatterns = [
-    path('', UserView.as_view(), name='home'),
+    path('', GerenciarAtividadesView.as_view(), name='home'),
 ]

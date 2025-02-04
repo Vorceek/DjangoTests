@@ -1,0 +1,60 @@
+/* LISTA DAS ATIVIDADES */
+table {
+    width: 92%; /* Ou você pode definir uma largura específica, como 90% */
+    border-collapse: collapse; /* Remove o espaçamento entre as células */
+    margin-top: 15px; /* Espaço acima da tabela */
+    margin-left: 6%;
+    margin-right: 3%; /* Adiciona margem à direita da tabela */
+    background-color: #383838; /* Mantém o fundo da tabela */
+}
+
+/* MENSAGEM DE ERRO */
+
+.messages {
+    margin: 20px 0;
+}
+
+.alert {
+    background-color: #f8d7da; /* Cor de fundo para mensagens de erro */
+    color: #721c24; /* Cor do texto para mensagens de erro */
+    padding: 10px;
+    border: 1px solid #f5c6cb; /* Borda para mensagens de erro */
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+th, td {
+    padding: 15px; /* Espaçamento interno nas células */
+    text-align: left; /* Alinhamento do texto à esquerda */
+    border-bottom: 1px solid #ddd; /* Borda abaixo de cada linha */
+}
+
+/* Adicionando espaçamento entre as colunas */
+td {
+    padding-left: 20px; /* Espaçamento à esquerda */
+    padding-right: 20px; /* Espaçamento à direita */
+}
+
+th {
+    background-color: #58585e; /* Cor de fundo dos cabeçalhos */
+    color: #ffff; /* Cor do texto dos cabeçalhos */
+}
+
+tr:hover {
+    background-color: #f1f1f1; /* Cor de fundo ao passar o mouse */
+}
+
+/* Estilo para o cabeçalho */
+thead th {
+    font-weight: bold; /* Negrito nos cabeçalhos */
+    font-size: 16px; /* Aumenta o tamanho da fonte dos cabeçalhos */
+}
+
+/* Melhorar a legibilidade da tabela */
+tbody tr:nth-child(even) {
+    background-color: #58585e; /* Cor de fundo para linhas pares */
+}
+
+tbody tr:nth-child(odd) {
+    background-color: #606066; /* Cor de fundo para linhas ímpares */
+}

@@ -1,0 +1,111 @@
+/* Estilo do formulário */
+.form-inline {
+    display: flex;
+    flex-direction: row; /* Alinha os itens verticalmente */
+    align-items: flex-start; /* Alinha tudo à esquerda */
+    gap: 10px; /* Espaçamento entre os campos */
+    padding: 20px;
+    background-color: #f9f9f9; /* Fundo do formulário */
+    border: 1px solid #ddd; /* Borda suave */
+    border-radius: 8px; /* Cantos arredondados */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para destaque */
+    max-width: 500px; /* Largura máxima para centralizar visualmente */
+}
+
+/* Estilo dos rótulos */
+.form-inline label {
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Estilo dos campos de seleção */
+.form-inline select {
+    width: 100%; /* Ocupa toda a largura disponível */
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    appearance: none; /* Remove estilo padrão do navegador */
+}
+
+/* Botão para adicionar */
+.btn-submit {
+    background-color: #007bff; /* Azul vibrante */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-submit:hover {
+    background-color: #0056b3; /* Azul mais escuro no hover */
+    transform: translateY(-2px); /* Elevação sutil */
+}
+
+.btn-submit:active {
+    background-color: #003d82; /* Azul ainda mais escuro no clique */
+    transform: translateY(0); /* Volta ao estado original */
+}
+
+/* Ajustes para responsividade */
+@media (max-width: 768px) {
+    .form-inline {
+        padding: 15px;
+        max-width: 100%; /* Largura total em telas menores */
+    }
+}
+
+.form-add {
+    display: flex; /* Define o layout flexbox */
+    flex-direction: row; /* Alinha os itens em linha */
+    gap: 15px; /* Espaçamento entre os itens */
+    align-items: center; /* Alinha verticalmente no centro */
+    flex-wrap: wrap; /* Permite quebra de linha em telas menores */
+}
+
+.form-add select {
+    flex: 1; /* Faz os selects ocuparem o mesmo espaço proporcional */
+    max-width: 300px; /* Define um limite de largura para os selects */
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #444;
+}
+
+.botao-add-form {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.botao-add-form:hover {
+    background-color: #0056b3;
+}
+
+/* Ajusta o layout para telas menores */
+@media (max-width: 768px) {
+    .form-add {
+        flex-direction: column; /* Alinha em coluna em telas pequenas */
+    }
+
+    .form-add select, .botao-add-form {
+        width: 100%; /* Cada item ocupa a largura total */
+        max-width: none; /* Remove limite de largura */
+    }
+}

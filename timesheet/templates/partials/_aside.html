@@ -1,21 +1,19 @@
-{% load static %}   
-    
-<!-- Aside -->
+{% load static %}
 
 <aside>
-    <a href="#"><img src="{% static 'partials/img/Branca.svg' %}" alt="o-dome" id="logo-dome"></a></li>
-
+    <a href="#"><img src="{% static 'partials/img/Branca.svg' %}" alt="o-dome" id="logo-dome"></a>
     <div class="aside-content">
         <ul class="aside-ul-content">
-
-
-            <li><a href="#"><i class="fa-solid fa-business-time"></i></a></li>
-
-            {% if user.is_authenticated %}
-            {% if is_admin %}
-            <li><a href="#"><i class="fa-solid fa-cloud-arrow-up"></i></a></li>
+            {% for icon in aside_icons %}
+            {% if icon.is_admin and is_admin %}
+                 <li><a href="{{ icon.link }}"><i class="{{ icon.icon_class }}"></i></a></li>
+            {% elif icon.is_user and is_user %}
+                 <li><a href="{{ icon.link }}"><i class="{{ icon.icon_class }}"></i></a></li>
+            {% elif not icon.is_admin and not icon.is_user %}
+                 <li><a href="{{ icon.link }}"><i class="{{ icon.icon_class }}"></i></a></li>
             {% endif %}
-            {% endif %}
+            {% endfor %}
+        
         </ul>
     </div>
-</aside> 
+</aside>
