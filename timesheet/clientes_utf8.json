@@ -1,0 +1,117 @@
+[
+    {
+        "model": "base_app.cliente",
+        "pk": 1,
+        "fields": {
+            "nome": "Cliente1",
+            "setor": [
+                2
+            ],
+            "servicos": []
+        }
+    },
+    {
+        "model": "base_app.cliente",
+        "pk": 2,
+        "fields": {
+            "nome": "Cliente2",
+            "setor": [
+                2
+            ],
+            "servicos": []
+        }
+    },
+    {
+        "model": "base_app.cliente",
+        "pk": 3,
+        "fields": {
+            "nome": "Cliente3",
+            "setor": [
+                2
+            ],
+            "servicos": []
+        }
+    },
+    {
+        "model": "base_app.cliente",
+        "pk": 4,
+        "fields": {
+            "nome": "Dome",
+            "setor": [
+                3
+            ],
+            "servicos": [
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                15,
+                16,
+                17,
+                18,
+                10019,
+                10020
+            ]
+        }
+    },
+    {
+        "model": "base_app.cliente",
+        "pk": 5,
+        "fields": {
+            "nome": "GH",
+            "setor": [
+                3
+            ],
+            "servicos": [
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                15,
+                16,
+                17,
+                18
+            ]
+        }
+    },
+    {
+        "model": "base_app.cliente",
+        "pk": 10006,
+        "fields": {
+            "nome": "HFGC",
+            "setor": [
+                3
+            ],
+            "servicos": [
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                15,
+                16,
+                17,
+                18,
+                10019,
+                10020
+            ]
+        }
+    }
+]

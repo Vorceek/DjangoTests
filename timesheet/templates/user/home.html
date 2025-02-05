@@ -230,7 +230,7 @@ function iniciarContagem() {
             const remainingSeconds = diffSeconds % 60;
             
             const formattedTime = 
-                String(diffHours).padStart(2, '0') + ':' +
+                String(diffHours).padStart('0') + ':' +
                 String(remainingMinutes).padStart(2, '0') + ':' +
                 String(remainingSeconds).padStart(2, '0');
             

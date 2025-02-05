@@ -16,7 +16,7 @@ def redirect_based_on_group(user):
     # Método auxiliar que realiza o redirecionamento com base no grupo do usuário.
 
     if user.groups.filter(name='ADMINISTRADOR').exists():
-        return redirect('hub')
+        return redirect('admin_app:hub')
     elif user.groups.filter(name='USER').exists():
         return redirect('user_app:home')
     else:
@@ -28,6 +28,7 @@ def aside_icons(request):
         {'link': '/admin-base/', 'icon_class': 'fa-solid fa-house', 'is_admin': True},
         {'link': '/admin-base/relatorio/', 'icon_class': 'fa-solid fa-file-lines', 'is_admin': True},
         {'link': '/upload/', 'icon_class': 'fa-solid fa-magnifying-glass', 'is_admin': True},
+
     ]
     
     is_admin = request.user.is_authenticated and request.user.groups.filter(name='ADMINISTRADOR').exists()

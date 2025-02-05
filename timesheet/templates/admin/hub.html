@@ -1,10 +1,24 @@
 {% extends 'theme/base.html' %}
 {% load static %}
-
-{% block titulo %}
-    <h2>Dashboard</h2>
-{% endblock %}
-
 {% block content %}
-    <h1>TESTE ADMIN PAGE</h1>
+
+<main>
+
+  <h1>Dashboard Administrativo</h1>
+  <div id="pie-chart" style="width:600px; height:400px;"></div>
+  
+  <p>Total de Colaboradores: {{ count_total }}</p>
+  <p>Trabalhando: {{ count_trabalhando }}</p>
+  <p>Não Trabalhando: {{ count_nao_trabalhando }}</p>
+  
+  <!-- Inclua o Plotly.js -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script>
+      // Converte a string JSON para objeto JavaScript
+      var pie_chart = JSON.parse('{{ pie_chart|escapejs }}');
+      console.log(pie_chart.data); // Verifique os valores no console
+      Plotly.newPlot('pie-chart', pie_chart.data, pie_chart.layout);
+  </script>
+
+</main>
 {% endblock %}

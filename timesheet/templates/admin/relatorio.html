@@ -22,14 +22,15 @@
                 <label>Colaboradores:</label>
                 <input type="text" id="colaboradorSearch" onkeyup="filterOptions('colaboradorSearch', 'colaboradorList')" placeholder="Pesquisar colaboradores...">
                 <div id="colaboradorList" class="filter-list">
-                    {% for usuario in usuarios %}
+                    {% for colaborador in colaboradores %}
                         <div>
-                            <input type="checkbox" id="usuario-{{ usuario.id }}" name="colaborador" value="{{ usuario.id }}" {% if usuario.id|stringformat:"s" in colaborador_ids %}checked{% endif %}>
-                            <label for="usuario-{{ usuario.id }}">{{ usuario.username }}</label>
+                            <input type="checkbox" id="colaborador-{{ colaborador.id }}" name="colaborador" value="{{ colaborador.id }}" {% if colaborador.id|stringformat:"s" in colaborador_ids %}checked{% endif %}>
+                            <label for="colaborador-{{ colaborador.id }}">{{ colaborador.username }}</label>
                         </div>
                     {% endfor %}
                 </div>
             </div>
+            
     
             <!-- Clientes -->
             <div class="filter-group">
@@ -64,7 +65,7 @@
                 <label>Atividades:</label>
                 <input type="text" id="atividadeSearch" onkeyup="filterOptions('atividadeSearch', 'atividadeList')" placeholder="Pesquisar atividades...">
                 <div id="atividadeList" class="filter-list">
-                    {% for atividade in atividades_filtro %}
+                    {% for atividade in atividadegeral %}
                         <div>
                             <input type="checkbox" name="atividade" value="{{ atividade.id }}" {% if atividade.id|stringformat:"s" in atividadegeral_ids %}checked{% endif %}>
                             <label>{{ atividade.nome }}</label>
@@ -72,6 +73,7 @@
                     {% endfor %}
                 </div>
             </div>
+            
     
             <!-- Data Inicial -->
             <div class="filter-group">

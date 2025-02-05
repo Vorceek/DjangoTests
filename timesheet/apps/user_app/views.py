@@ -13,7 +13,7 @@ def formatar_duracao(total_segundos):
     horas = int(total_segundos // 3600)
     minutos = int((total_segundos % 3600) // 60)
     segundos = int(total_segundos % 60)
-    return f"{horas:02d}:{minutos:02d}:{segundos:02d}"
+    return f"{horas}:{minutos:02d}:{segundos:02d}"
 
 # Handler para finalizar atividades ativas
 class FinalizarAtividadesHandler:

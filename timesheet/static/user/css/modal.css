@@ -73,7 +73,7 @@
 
 .form-add select {
     flex: 1; /* Faz os selects ocuparem o mesmo espaço proporcional */
-    max-width: 300px; /* Define um limite de largura para os selects */
+    width: 300px; /* Define um limite de largura para os selects */
     padding: 10px;
     font-size: 16px;
     border: 1px solid #ccc;
@@ -92,6 +92,43 @@
     cursor: pointer;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease;
+    margin-right: 10px;
+    margin-left: 15px;
+}
+
+.botao-add-form:hover {
+    background-color: #0056b3;
+}
+
+
+.atividade-topo .btn-finalizar-atividade {
+    background-color: #f02222;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+    margin-right: 10px;
+}
+
+.atividade-topo .btn-finalizar-atividade:hover {
+    background-color: #ac0303;
+}
+
+.botao-add-form {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+    margin-right: 10px;
 }
 
 .botao-add-form:hover {
@@ -100,11 +137,11 @@
 
 /* Ajusta o layout para telas menores */
 @media (max-width: 768px) {
-    .form-add {
+    .form-add, .btn-finalizar-atividade {
         flex-direction: column; /* Alinha em coluna em telas pequenas */
     }
 
-    .form-add select, .botao-add-form {
+    .form-add select, .botao-add-form, .btn-finalizar-atividade{
         width: 100%; /* Cada item ocupa a largura total */
         max-width: none; /* Remove limite de largura */
     }

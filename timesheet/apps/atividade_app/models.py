@@ -27,7 +27,7 @@ class RegistroAtividadeModel(models.Model):
             minutos = int((total_segundos % 3600) // 60)
             segundos = int(total_segundos % 60)
             return f"{horas}:{minutos:02d}:{segundos:02d}"
-        return "N/A"
+        return "0"
 
 
 

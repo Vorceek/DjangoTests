@@ -1,0 +1,282 @@
+[
+    {
+        "model": "base_app.atividade",
+        "pk": 1,
+        "fields": {
+            "nome": "Atividade1",
+            "setor": [
+                2
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 2,
+        "fields": {
+            "nome": "Atividade2",
+            "setor": [
+                2
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 3,
+        "fields": {
+            "nome": "Atividade3",
+            "setor": [
+                2
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 4,
+        "fields": {
+            "nome": "Processamento",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 5,
+        "fields": {
+            "nome": "CertificaþÒo",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 6,
+        "fields": {
+            "nome": "Cßlculos",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 7,
+        "fields": {
+            "nome": "RÚgua Cobranþa",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 8,
+        "fields": {
+            "nome": "Pesquisas Antigas",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 9,
+        "fields": {
+            "nome": "Lanþamentos",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 10,
+        "fields": {
+            "nome": "Novos Contratos",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 11,
+        "fields": {
+            "nome": "Outros",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 12,
+        "fields": {
+            "nome": "Recorrentes",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 13,
+        "fields": {
+            "nome": "Utilizaþ§es",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 14,
+        "fields": {
+            "nome": "ApuraþÒo Haveres",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 15,
+        "fields": {
+            "nome": "Planilhas Checklist",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 16,
+        "fields": {
+            "nome": "Relat¾rio Faturamento",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 17,
+        "fields": {
+            "nome": "Situaþ§es",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 18,
+        "fields": {
+            "nome": "Planejamento e AplicaþÒo",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 19,
+        "fields": {
+            "nome": "InclusÒo",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 20,
+        "fields": {
+            "nome": "ValidaþÒo",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 21,
+        "fields": {
+            "nome": "Atividade",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 22,
+        "fields": {
+            "nome": "Questor Neg¾cios",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 23,
+        "fields": {
+            "nome": "Particular",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 24,
+        "fields": {
+            "nome": "Treinamento",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 25,
+        "fields": {
+            "nome": "Engajamento",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 10026,
+        "fields": {
+            "nome": "E-mails",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 10027,
+        "fields": {
+            "nome": "Pastas",
+            "setor": [
+                3
+            ]
+        }
+    },
+    {
+        "model": "base_app.atividade",
+        "pk": 10028,
+        "fields": {
+            "nome": "Clientes",
+            "setor": [
+                3
+            ]
+        }
+    }
+]

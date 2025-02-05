@@ -1,31 +1,6 @@
 /* Estilo para o botão "Adicionar Atividade" */
-.atividade-topo .btn-add-atividade {
-    padding: 10px 10px;
-    background-color: #00b35f;
-    color: white;
-    font-size: 16px;
-    text-decoration: none;
-    border-radius: 10px;
-    margin-right: 20px;
-}
 
-.atividade-topo .btn-add-atividade:hover {
-    background-color: #2b9463;
-}
 
-.atividade-topo .btn-finalizar-atividade {
-    padding: 10px 10px;
-    background-color: #df3b3b;
-    color: white;
-    font-size: 16px;
-    text-decoration: none;
-    border-radius: 10px;
-    margin-right: 20px;
-}
-
-.atividade-topo .btn-finalizar-atividade:hover {
-    background-color: #f30909;
-}
 
 /* Alinhamento à esquerda do botão */
 .atividade-topo .atividade-left {

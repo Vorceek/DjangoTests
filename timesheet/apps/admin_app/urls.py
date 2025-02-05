@@ -1,9 +1,9 @@
 from django.urls import path
-from .views import AdminView, gerar_relatorio
+from .views import AdminView, GerarRelatorioView
 
 app_name = 'admin_app'
 
 urlpatterns = [
     path('', AdminView.as_view(), name='hub'),
-    path('relatorio/', gerar_relatorio, name='gerar_relatorio'),
+    path('relatorio/', GerarRelatorioView.as_view(), name='gerar_relatorio'),
 ]
