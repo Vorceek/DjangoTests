@@ -9,26 +9,30 @@
 
 <main>
   
-  
-
 <div class="chart-container">
   <h2>Status dos Colaboradores</h2>
   <canvas id="chartColaboradores"></canvas>
 </div>
 
 <div class="chart-container">
-    <h2>Atividades Realizadas por Dia da Semana</h2>
-    <canvas id="barChartAtividades"></canvas>
-</div>
+  <h2>Atividades por Dia da Semana</h2>
+  <div class="date-filter">
+    <div class="input-group">
+        <label for="dataInicio">Data Início:</label>
+        <input type="date" id="dataInicio" name="data_inicio" />
+    </div>
 
+    <div class="input-group">
+        <label for="dataFim">Data Fim:</label>
+        <input type="date" id="dataFim" name="data_fim" />
+    </div>
+
+    <button class="filter-btn" onclick="filtrarAtividades()">Filtrar</button>
+</div>
+  <canvas id="barChartAtividades"></canvas>
+</div>
     
 </main>
-
-
-
-
-
-
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -68,41 +72,50 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 });
 </script>
+
 <!--Gráfico de Barras-->
+
 <script>
+  function filtrarAtividades() {
+      var dataInicio = document.getElementById("dataInicio").value;
+      var dataFim = document.getElementById("dataFim").value;
 
-document.addEventListener("DOMContentLoaded", function() {
-  var ctx = document.getElementById("barChartAtividades").getContext("2d");
+      if (dataInicio && dataFim) {
+          window.location.href = "?data_inicio=" + dataInicio + "&data_fim=" + dataFim;
+      }
+  }
 
-  var labels = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-  var data = JSON.parse('{{ atividades_por_dia|safe }}'); // Passando os dados do backend
+  document.addEventListener("DOMContentLoaded", function () {
+      var ctxAtividades = document.getElementById("barChartAtividades").getContext("2d");
 
-  var barChart = new Chart(ctx, {
-      type: "bar",
-      data: {
-          labels: labels,
-          datasets: [{
-              label: "Atividades feitas",
-              data: data,
-              backgroundColor: ["#3498db", "#2ecc71", "#e74c3c", "#f1c40f", "#9b59b6", "#1abc9c"],
-              borderWidth: 1
-          }]
-      },
-      options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-              y: {
-                  beginAtZero: true,
-                  ticks: {
-                      stepSize: 1
+      var labelsAtividades = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+      var valuesAtividades = JSON.parse('{{ atividades_por_dia|safe }}');
+
+      new Chart(ctxAtividades, {
+          type: "bar",
+          data: {
+              labels: labelsAtividades,
+              datasets: [{
+                  label: "Atividades feitas",
+                  data: valuesAtividades,
+                  backgroundColor: ["#3498db", "#2ecc71", "#e74c3c", "#f1c40f", "#9b59b6", "#1abc9c", "#ff5733"],
+                  borderWidth: 1
+              }]
+          },
+          options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                  y: {
+                      beginAtZero: true,
+                      ticks: {
+                          stepSize: 1
+                      }
                   }
               }
           }
-      }
+      });
   });
-});
-
 </script>
 
 {% endblock %}

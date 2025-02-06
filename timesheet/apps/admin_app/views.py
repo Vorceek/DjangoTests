@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from apps.base_app.permissions import AdminRequiredMixin, aside_icons
-from datetime import datetime
+from datetime import datetime, timedelta
 from io import BytesIO
 import pandas as pd
 import pytz
@@ -60,22 +60,37 @@ class AdminView(LoginRequiredMixin, TemplateView):
             })
             return context
 
-        # Filtra as atividades do setor do usuário na semana atual
+                # Obtém as datas selecionadas pelo usuário
+        data_inicio_str = self.request.GET.get("data_inicio")
+        data_fim_str = self.request.GET.get("data_fim")
+
+        if data_inicio_str and data_fim_str:
+            try:
+                data_inicio = datetime.strptime(data_inicio_str, "%Y-%m-%d").date()
+                data_fim = datetime.strptime(data_fim_str, "%Y-%m-%d").date()
+            except ValueError:
+                data_inicio = now().date() - timedelta(days=6)
+                data_fim = now().date()
+        else:
+            # Padrão: Últimos 7 dias
+            data_inicio = now().date() - timedelta(days=6)
+            data_fim = now().date()
+
+        # Filtrando as atividades dentro do intervalo escolhido
         atividades = RegistroAtividadeModel.objects.filter(
-        RAM_colaborador__groups__name__in=setores_dinamicos,
-        RAM_dataInicial__week=now().isocalendar()[1]
+            RAM_colaborador__groups__name__in=setores_dinamicos,
+            RAM_dataInicial__date__gte=data_inicio,
+            RAM_dataInicial__date__lte=data_fim
         ).annotate(dia_semana=ExtractWeekDay("RAM_dataInicial")).values("dia_semana")
 
-        # Dicionário para contar atividades por dia da semana
-        atividades_count = {i: 0 for i in range(2, 8)}  # Segunda (2) até Sábado (7)
-
+        atividades_count = {i: 0 for i in range(1, 8)}  # Domingo (1) até Sábado (7)
         for atividade in atividades:
             dia = atividade["dia_semana"]
             if dia in atividades_count:
                 atividades_count[dia] += 1
 
-        # Converte para lista no formato que o JS espera
-        atividades_por_dia = [atividades_count.get(i, 0) for i in range(2, 8)]
+        atividades_por_dia = [atividades_count.get(i, 0) for i in range(1, 8)]
+
 
         # Filtra usuários do mesmo setor e que sejam "USER"
         usuarios_setor = User.objects.filter(groups__name__in=setores_dinamicos).distinct()
@@ -95,6 +110,7 @@ class AdminView(LoginRequiredMixin, TemplateView):
         context['count_trabalhando'] = count_trabalhando
         context['count_nao_trabalhando'] = count_nao_trabalhando
         context['count_total'] = count_total
+        context["atividades_por_dia"] = json.dumps(atividades_por_dia)
         context["atividades_por_dia"] = json.dumps(atividades_por_dia)
 
         return context
