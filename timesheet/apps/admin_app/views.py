@@ -16,7 +16,6 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from apps.atividade_app.models import Cliente, RegistroAtividadeModel, Servico, Atividade
 from django.contrib.auth.models import User
 from django.utils.timezone import make_naive
-import plotly.express as px
 from django.db.models import Count, Q
 import json
 import plotly.express as px
@@ -24,7 +23,8 @@ from django.contrib.auth.models import User, Group
 from django.db.models import Count, Q
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
-from plotly.utils import PlotlyJSONEncoder
+from django.db.models.functions import ExtractWeekDay
+from django.utils.timezone import now
 
 class AdminView(LoginRequiredMixin, TemplateView):
     template_name = "admin/hub.html"
@@ -32,13 +32,16 @@ class AdminView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         fixed_groups = ["ADMINISTRADOR", "USER"]
-        # Obtém os setores dinâmicos: grupos do usuário que não sejam fixos.
+        
+        # Obtém os setores dinâmicos (grupos que o usuário faz parte, excluindo os fixos)
         setores_dinamicos = list(
             self.request.user.groups.exclude(name__in=fixed_groups).values_list('name', flat=True)
         )
+
         if not setores_dinamicos:
             context.update({
-                'pie_chart': json.dumps({}),
+                'labels': json.dumps([]),
+                'values': json.dumps([]),
                 'count_trabalhando': 0,
                 'count_nao_trabalhando': 0,
                 'count_total': 0,
@@ -49,49 +52,54 @@ class AdminView(LoginRequiredMixin, TemplateView):
             user_group = Group.objects.get(name="USER")
         except Group.DoesNotExist:
             context.update({
-                'pie_chart': json.dumps({}),
+                'labels': json.dumps([]),
+                'values': json.dumps([]),
                 'count_trabalhando': 0,
                 'count_nao_trabalhando': 0,
                 'count_total': 0,
             })
             return context
 
-        # Filtra os usuários que pertencem a algum dos setores dinâmicos
+        # Filtra as atividades do setor do usuário na semana atual
+        atividades = RegistroAtividadeModel.objects.filter(
+        RAM_colaborador__groups__name__in=setores_dinamicos,
+        RAM_dataInicial__week=now().isocalendar()[1]
+        ).annotate(dia_semana=ExtractWeekDay("RAM_dataInicial")).values("dia_semana")
+
+        # Dicionário para contar atividades por dia da semana
+        atividades_count = {i: 0 for i in range(2, 8)}  # Segunda (2) até Sábado (7)
+
+        for atividade in atividades:
+            dia = atividade["dia_semana"]
+            if dia in atividades_count:
+                atividades_count[dia] += 1
+
+        # Converte para lista no formato que o JS espera
+        atividades_por_dia = [atividades_count.get(i, 0) for i in range(2, 8)]
+
+        # Filtra usuários do mesmo setor e que sejam "USER"
         usuarios_setor = User.objects.filter(groups__name__in=setores_dinamicos).distinct()
-        # Seleciona somente os usuários que também pertencem ao grupo USER
         usuarios_regulares = usuarios_setor.filter(groups=user_group).distinct()
         count_total = usuarios_regulares.count()
 
-        # Conta os usuários "trabalhando": com pelo menos um registro ativo.
+        # Conta os usuários ativos e inativos
         usuarios_trabalhando = usuarios_regulares.annotate(
             total_ativos=Count('registroatividademodel', filter=Q(registroatividademodel__RAM_ativo=True))
         ).filter(total_ativos__gt=0)
         count_trabalhando = usuarios_trabalhando.count()
         count_nao_trabalhando = count_total - count_trabalhando
 
-        # Debug (opcional)
-        print("Trabalhando:", count_trabalhando, "Não Trabalhando:", count_nao_trabalhando, "Total:", count_total)
-
-        # Cria o DataFrame explicitamente
-        df_data = pd.DataFrame({
-            'Status': ['Trabalhando', 'Não Trabalhando'],
-            'Count': [float(count_trabalhando), float(count_nao_trabalhando)]
-        })
-
-        # Cria o gráfico de pizza com Plotly Express
-        fig = px.pie(
-            df_data,
-            names='Status',
-            values='Count',
-            title='Colaboradores - Status de Trabalho'
-        )
-        fig.update_traces(textinfo='value+percent')
-        # Converte a figura para dicionário e depois para JSON usando PlotlyJSONEncoder
-        context['pie_chart'] = json.dumps(fig.to_dict(), cls=PlotlyJSONEncoder)
+        # Envia os dados para o template
+        context['labels'] = json.dumps(['Trabalhando', 'Não Trabalhando'])
+        context['values'] = json.dumps([count_trabalhando, count_nao_trabalhando])
         context['count_trabalhando'] = count_trabalhando
         context['count_nao_trabalhando'] = count_nao_trabalhando
         context['count_total'] = count_total
+        context["atividades_por_dia"] = json.dumps(atividades_por_dia)
+
         return context
+
+
     
 # Função para formatar a duração em "hh:mm:ss"
 def formatar_duracao(total_segundos):

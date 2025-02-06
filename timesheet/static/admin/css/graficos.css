@@ -1,0 +1,20 @@
+main {
+    display: flex;
+    flex-direction: row;
+}
+
+.chart-container {
+    display: flex;
+    flex-direction: column;
+    width: 80%; /* Ajuste conforme necessário */
+    max-width: 600px; /* Limita o tamanho */
+    max-height: 500px;
+    margin: 20px auto; /* Centraliza e adiciona espaçamento */
+}
+
+h2 {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 1.5em;
+}
+
