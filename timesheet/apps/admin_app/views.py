@@ -1,3 +1,4 @@
+import math
 from django.http import HttpResponse
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -16,15 +17,22 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from apps.atividade_app.models import Cliente, RegistroAtividadeModel, Servico, Atividade
 from django.contrib.auth.models import User
 from django.utils.timezone import make_naive
-from django.db.models import Count, Q
-import json
-import plotly.express as px
-from django.contrib.auth.models import User, Group
-from django.db.models import Count, Q
+from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from django.db.models.functions import ExtractWeekDay
 from django.utils.timezone import now
+from django.db.models import Sum, F
+from django.utils.timezone import now
+from datetime import datetime, timedelta
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
+from django.contrib.auth.models import User
+from apps.atividade_app.models import RegistroAtividadeModel
+from django.db.models.functions import ExtractWeekDay
+import json
+
+
 
 class AdminView(LoginRequiredMixin, TemplateView):
     template_name = "admin/hub.html"
@@ -32,35 +40,21 @@ class AdminView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         fixed_groups = ["ADMINISTRADOR", "USER"]
-        
-        # Obtém os setores dinâmicos (grupos que o usuário faz parte, excluindo os fixos)
+
+        # Obtém os setores dinâmicos (excluindo os fixos)
         setores_dinamicos = list(
             self.request.user.groups.exclude(name__in=fixed_groups).values_list('name', flat=True)
         )
 
         if not setores_dinamicos:
             context.update({
-                'labels': json.dumps([]),
-                'values': json.dumps([]),
-                'count_trabalhando': 0,
-                'count_nao_trabalhando': 0,
-                'count_total': 0,
+                "atividades_por_dia": json.dumps([]),
+                "servicos_labels": json.dumps([]),
+                "servicos_values": json.dumps([]),
             })
             return context
 
-        try:
-            user_group = Group.objects.get(name="USER")
-        except Group.DoesNotExist:
-            context.update({
-                'labels': json.dumps([]),
-                'values': json.dumps([]),
-                'count_trabalhando': 0,
-                'count_nao_trabalhando': 0,
-                'count_total': 0,
-            })
-            return context
-
-                # Obtém as datas selecionadas pelo usuário
+        # Obtém as datas do filtro
         data_inicio_str = self.request.GET.get("data_inicio")
         data_fim_str = self.request.GET.get("data_fim")
 
@@ -72,16 +66,15 @@ class AdminView(LoginRequiredMixin, TemplateView):
                 data_inicio = now().date() - timedelta(days=6)
                 data_fim = now().date()
         else:
-            # Padrão: Últimos 7 dias
             data_inicio = now().date() - timedelta(days=6)
             data_fim = now().date()
 
-        # Filtrando as atividades dentro do intervalo escolhido
+        # Gráfico de atividades por dia da semana
         atividades = RegistroAtividadeModel.objects.filter(
             RAM_colaborador__groups__name__in=setores_dinamicos,
             RAM_dataInicial__date__gte=data_inicio,
             RAM_dataInicial__date__lte=data_fim
-        ).annotate(dia_semana=ExtractWeekDay("RAM_dataInicial")).values("dia_semana")
+        ).annotate(dia_semana=ExtractWeekDay("RAM_dataInicial")).values("dia_semana").distinct()
 
         atividades_count = {i: 0 for i in range(1, 8)}  # Domingo (1) até Sábado (7)
         for atividade in atividades:
@@ -91,31 +84,50 @@ class AdminView(LoginRequiredMixin, TemplateView):
 
         atividades_por_dia = [atividades_count.get(i, 0) for i in range(1, 8)]
 
+        servicos_atividades = (
+            RegistroAtividadeModel.objects
+            .filter(
+                RAM_colaborador__groups__name__in=setores_dinamicos,
+                RAM_dataInicial__date__gte=data_inicio,
+                RAM_dataInicial__date__lte=data_fim
+            )
+            .values("RAM_servico__nome")  # Agrupar por serviço
+            .annotate(total_horas=Sum(F("RAM_dataFinal") - F("RAM_dataInicial")))  # Somar as horas
+            .distinct()  # Garante que cada serviço apareça uma única vez
+            .order_by("-total_horas")  # Ordena do maior para o menor
+        )
 
-        # Filtra usuários do mesmo setor e que sejam "USER"
-        usuarios_setor = User.objects.filter(groups__name__in=setores_dinamicos).distinct()
-        usuarios_regulares = usuarios_setor.filter(groups=user_group).distinct()
-        count_total = usuarios_regulares.count()
 
-        # Conta os usuários ativos e inativos
-        usuarios_trabalhando = usuarios_regulares.annotate(
-            total_ativos=Count('registroatividademodel', filter=Q(registroatividademodel__RAM_ativo=True))
-        ).filter(total_ativos__gt=0)
-        count_trabalhando = usuarios_trabalhando.count()
-        count_nao_trabalhando = count_total - count_trabalhando
+        servicos_labels = []
+        servicos_values = []
+        total_horas = 0  # Inicializa o total de horas
 
-        # Envia os dados para o template
-        context['labels'] = json.dumps(['Trabalhando', 'Não Trabalhando'])
-        context['values'] = json.dumps([count_trabalhando, count_nao_trabalhando])
-        context['count_trabalhando'] = count_trabalhando
-        context['count_nao_trabalhando'] = count_nao_trabalhando
-        context['count_total'] = count_total
+                # Formatar total de horas para HH:MM:SS
+        def formatar_horas(total_horas):
+            horas = math.floor(total_horas)
+            minutos = math.floor((total_horas - horas) * 60)
+            segundos = round(((total_horas - horas) * 60 - minutos) * 60)
+            return f"{horas:02}:{minutos:02}:{segundos:02}"  # Formato HH:MM:SS
+
+        for servico in servicos_atividades:
+            if servico["total_horas"]:  # Garante que a duração não seja None
+                duracao_timedelta = servico["total_horas"]
+                if isinstance(duracao_timedelta, timedelta):  # Verifica se é timedelta
+                    horas = duracao_timedelta.total_seconds() / 3600  # Converte para horas
+                else:
+                    horas = float(duracao_timedelta)  # Se for float, apenas mantém
+
+                servicos_labels.append(servico["RAM_servico__nome"])
+                servicos_values.append(round(horas, 2))  # Arredonda para 2 casas decimais
+                total_horas += horas  # Acumula o total de horas
+
+        context["total_horas"] = formatar_horas(total_horas)
         context["atividades_por_dia"] = json.dumps(atividades_por_dia)
-        context["atividades_por_dia"] = json.dumps(atividades_por_dia)
+        context["servicos_labels"] = json.dumps(servicos_labels)
+        context["servicos_values"] = json.dumps(servicos_values)
 
         return context
-
-
+    
     
 # Função para formatar a duração em "hh:mm:ss"
 def formatar_duracao(total_segundos):

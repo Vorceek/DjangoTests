@@ -8,28 +8,38 @@
 {% endblock %}
 
 <main>
-  
-<div class="chart-container">
-  <h2>Status dos Colaboradores</h2>
-  <canvas id="chartColaboradores"></canvas>
-</div>
 
-<div class="chart-container">
-  <h2>Atividades por Dia da Semana</h2>
+<div class="chart-filter">
+
+  <h2>Filtro Por Hora</h2>
+
   <div class="date-filter">
+
     <div class="input-group">
-        <label for="dataInicio">Data Início:</label>
+        <label for="dataInicio">Data Inicial:</label>
         <input type="date" id="dataInicio" name="data_inicio" />
     </div>
 
     <div class="input-group">
-        <label for="dataFim">Data Fim:</label>
+        <label for="dataFim">Data Final:</label>
         <input type="date" id="dataFim" name="data_fim" />
     </div>
-
     <button class="filter-btn" onclick="filtrarAtividades()">Filtrar</button>
-</div>
-  <canvas id="barChartAtividades"></canvas>
+    </div>
+
+    <div class="chart-boxes">
+        <div class="chart-container">
+            <h2>Horas Trabalhadas por Serviço</h2>
+            <p><strong>Total de Horas Trabalhadas:</strong> {{ total_horas }}</p>
+            <canvas id="servicoChart"></canvas>
+        </div>
+    
+        <div class="chart-container">
+            <h2>Detalhes Das Horas</h2>
+            <canvas id="barChartAtividades"></canvas>
+        </div>
+    </div>
+
 </div>
     
 </main>
@@ -117,5 +127,56 @@ document.addEventListener("DOMContentLoaded", function() {
       });
   });
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var ctx = document.getElementById("servicoChart").getContext("2d");
+
+        var labels = JSON.parse('{{ servicos_labels|safe }}') || [];
+        var values = JSON.parse('{{ servicos_values|safe }}') || [];
+
+        // Verifica se há dados para exibir
+        if (labels.length === 0 || values.length === 0) {
+            console.warn("Nenhum dado disponível para exibir o gráfico.");
+            return;
+        }
+
+        new Chart(ctx, {
+            type: "doughnut",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Horas Trabalhadas",
+                    data: values,
+                    backgroundColor: ["#3498db", "#2ecc71", "#e74c3c", "#f1c40f", "#9b59b6", "#1abc9c", "#ff5733"],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: "bottom"
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (tooltipItem) {
+                                var totalHoras = tooltipItem.raw;
+
+                                // Converte a parte decimal para minutos e segundos
+                                var horas = Math.floor(totalHoras);
+                                var minutos = Math.floor((totalHoras - horas) * 60);
+                                var segundos = Math.round(((totalHoras - horas) * 60 - minutos) * 60);
+
+                                return `${tooltipItem.label}: ${horas}:${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+
 
 {% endblock %}

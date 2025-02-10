@@ -1,7 +1,7 @@
 main {
-    display: flex;
-    flex-direction: row;
+    margin-left: 90px;
 }
+
 
 .chart-container {
     display: flex;
@@ -25,7 +25,6 @@ h2 {
     justify-content: center;
     padding: 5px;
     margin-bottom: 20px;
-    border: 1px solid white;
     border-radius: 20px;
 }
 
@@ -64,6 +63,7 @@ h2 {
     font-weight: bold;
     border-radius: 5px;
     cursor: pointer;
+    max-width: 150px;
     transition: 0.3s ease-in-out;
 }
 
@@ -71,3 +71,13 @@ h2 {
     background-color: #2980b9;
 }
 
+.chart-filter {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.chart-boxes {
+    display: flex;
+    flex-direction: row;
+}
