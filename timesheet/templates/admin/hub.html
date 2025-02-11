@@ -4,6 +4,7 @@
 
 {% block extra_css %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <link rel="stylesheet" href="{% static 'admin/css/graficos.css' %}">
 {% endblock %}
 
@@ -40,49 +41,13 @@
             <canvas id="barChartAtividades"></canvas>
         </div>
     </div>
-
+    <div id="grafico-baixo">
+        <div id="barrasEmpilhadas"></div>
+    </div>
 </div>
     
 </main>
 
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-  var ctx = document.getElementById("chartColaboradores").getContext("2d");
-
-  // Pegando os dados do Django
-  var labels = JSON.parse('{{ labels|safe }}');
-  var values = JSON.parse('{{ values|safe }}');
-
-  var myChart = new Chart(ctx, {
-      type: "doughnut",  // Tipo do gráfico
-      data: {
-          labels: labels,
-          datasets: [{
-              data: values,
-              backgroundColor: ["#36A2EB", "#FF6384"], // Azul e Vermelho
-              borderWidth: 1
-          }]
-      },
-      options: {
-          responsive: true,
-          plugins: {
-              legend: {
-                  position: "top"
-              },
-              tooltip: {
-                  callbacks: {
-                      label: function(tooltipItem) {
-                          let total = values.reduce((a, b) => a + b, 0);
-                          let percent = ((tooltipItem.raw / total) * 100).toFixed(2);
-                          return `${tooltipItem.label}: ${tooltipItem.raw} (${percent}%)`;
-                      }
-                  }
-              }
-          }
-      }
-  });
-});
-</script>
 
 <!--Gráfico de Barras-->
 
@@ -128,6 +93,9 @@ document.addEventListener("DOMContentLoaded", function() {
       });
   });
 </script>
+
+<!--FILTRO ROSQUINHA-->
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         var ctx = document.getElementById("servicoChart").getContext("2d");
@@ -178,6 +146,9 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 </script>
+
+<!-- LIMPAR FILTROS -->
+
 <script>
     function limparFiltros() {
         // Obtém a data de hoje e calcula a semana passada
@@ -201,5 +172,42 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 </script>
 
+<!--FILTRO DETALHADO -->
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var labels = JSON.parse('{{ barras_labels|safe }}');
+        var datasets = JSON.parse('{{ barras_datasets|safe }}');
+    
+        function formatHoras(segundos) {
+            let horas = Math.floor(segundos / 3600);
+            let minutos = Math.floor((segundos % 3600) / 60);
+            let segs = Math.floor(segundos % 60);
+            return `${horas}:${String(minutos).padStart(2, '0')}:${String(segs).padStart(2, '0')}`;
+        }
+    
+        var traces = datasets.map(dataset => ({
+            x: labels,
+            y: dataset.data.map(horas => horas * 3600), // Converte de horas para segundos
+            name: dataset.label,
+            type: 'bar',
+            marker: { color: dataset.backgroundColor },
+            hovertemplate: '%{y:.0f} segundos<br>' + // Tooltip com segundos brutos
+                           '<b>%{text}</b>', // Exibe o formato correto
+            text: dataset.data.map(horas => formatHoras(horas * 3600)), // Converte os valores para HH:MM:SS
+            textposition: 'auto'
+        }));
+    
+        var layout = {
+            barmode: 'stack',
+            title: 'Horas Trabalhadas por Serviço',
+            xaxis: { title: 'Dias' },
+            yaxis: { title: 'Horas Trabalhadas', tickformat: "" },
+            margin: { t: 50 }
+        };
+    
+        Plotly.newPlot('barrasEmpilhadas', traces, layout);
+    });
+    </script>
 
 {% endblock %}

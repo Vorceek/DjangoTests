@@ -1,4 +1,3 @@
-import math
 from django.http import HttpResponse
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -17,22 +16,10 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from apps.atividade_app.models import Cliente, RegistroAtividadeModel, Servico, Atividade
 from django.contrib.auth.models import User
 from django.utils.timezone import make_naive
-from django.contrib.auth.models import User
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import TemplateView
-from django.db.models.functions import ExtractWeekDay
-from django.utils.timezone import now
 from django.db.models import Sum, F
 from django.utils.timezone import now
-from datetime import datetime, timedelta
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import TemplateView
-from django.contrib.auth.models import User
-from apps.atividade_app.models import RegistroAtividadeModel
 from django.db.models.functions import ExtractWeekDay
 import json
-
-
 
 class AdminView(LoginRequiredMixin, TemplateView):
     template_name = "admin/hub.html"
@@ -51,6 +38,8 @@ class AdminView(LoginRequiredMixin, TemplateView):
                 "atividades_por_dia": json.dumps([]),
                 "servicos_labels": json.dumps([]),
                 "servicos_values": json.dumps([]),
+                "barras_labels": json.dumps([]),
+                "barras_datasets": json.dumps([]),
             })
             return context
 
@@ -68,12 +57,13 @@ class AdminView(LoginRequiredMixin, TemplateView):
         else:
             data_inicio = now().date() - timedelta(days=now().weekday() + 7)  # Segunda-feira passada
             data_fim = data_inicio + timedelta(days=6)  # Domingo passado
-        # Gráfico de atividades por dia da semana
+
+        # ---- Gráfico de atividades por dia ----
         atividades = RegistroAtividadeModel.objects.filter(
             RAM_colaborador__groups__name__in=setores_dinamicos,
             RAM_dataInicial__date__gte=data_inicio,
             RAM_dataInicial__date__lte=data_fim
-        ).annotate(dia_semana=ExtractWeekDay("RAM_dataInicial")).values("dia_semana").distinct()
+        ).annotate(dia_semana=ExtractWeekDay("RAM_dataInicial")).values("dia_semana")
 
         atividades_count = {i: 0 for i in range(1, 8)}  # Domingo (1) até Sábado (7)
         for atividade in atividades:
@@ -83,6 +73,7 @@ class AdminView(LoginRequiredMixin, TemplateView):
 
         atividades_por_dia = [atividades_count.get(i, 0) for i in range(1, 8)]
 
+        # ---- Gráfico de horas por serviço (rosquinha) ----
         servicos_atividades = (
             RegistroAtividadeModel.objects
             .filter(
@@ -90,40 +81,87 @@ class AdminView(LoginRequiredMixin, TemplateView):
                 RAM_dataInicial__date__gte=data_inicio,
                 RAM_dataInicial__date__lte=data_fim
             )
-            .values("RAM_servico__nome")  # Agrupar por serviço
-            .annotate(total_horas=Sum(F("RAM_dataFinal") - F("RAM_dataInicial")))  # Somar as horas
-            .distinct()  # Garante que cada serviço apareça uma única vez
-            .order_by("-total_horas")  # Ordena do maior para o menor
+            .values("RAM_servico__nome")
+            .annotate(total_horas=Sum(F("RAM_dataFinal") - F("RAM_dataInicial"))
+            )
+            .order_by("-total_horas")
         )
-
 
         servicos_labels = []
         servicos_values = []
-        total_horas = 0  # Inicializa o total de horas
-
-                # Formatar total de horas para HH:MM:SS
-        def formatar_horas(total_horas):
-            horas = math.floor(total_horas)
-            minutos = math.floor((total_horas - horas) * 60)
-            segundos = round(((total_horas - horas) * 60 - minutos) * 60)
-            return f"{horas:02}:{minutos:02}:{segundos:02}"  # Formato HH:MM:SS
-
+        total_horas = timedelta()
+        
         for servico in servicos_atividades:
-            if servico["total_horas"]:  # Garante que a duração não seja None
-                duracao_timedelta = servico["total_horas"]
-                if isinstance(duracao_timedelta, timedelta):  # Verifica se é timedelta
-                    horas = duracao_timedelta.total_seconds() / 3600  # Converte para horas
-                else:
-                    horas = float(duracao_timedelta)  # Se for float, apenas mantém
-
+            duracao_timedelta = servico["total_horas"]
+            if duracao_timedelta:
+                total_horas += duracao_timedelta
                 servicos_labels.append(servico["RAM_servico__nome"])
-                servicos_values.append(round(horas, 2))  # Arredonda para 2 casas decimais
-                total_horas += horas  # Acumula o total de horas
+                servicos_values.append(round(duracao_timedelta.total_seconds() / 3600, 2))  # Converte para horas
 
+
+        def formatar_horas(duracao):
+            if isinstance(duracao, timedelta):
+                total_segundos = int(duracao.total_seconds())
+            else:
+                total_segundos = int(float(duracao) * 3600)
+
+            horas, resto = divmod(total_segundos, 3600)
+            minutos, segundos = divmod(resto, 60)
+
+            return f"{horas}:{minutos:02}:{segundos:02}" 
+
+        total_horas_formatado = formatar_horas(total_horas)
+
+        # ---- Gráfico de Barras Empilhadas (Serviços por Dia) ----
+        registros_por_dia_servico = (
+            RegistroAtividadeModel.objects
+            .filter(
+                RAM_colaborador__groups__name__in=setores_dinamicos,
+                RAM_dataInicial__date__gte=data_inicio,
+                RAM_dataInicial__date__lte=data_fim
+            )
+            .values("RAM_dataInicial__date", "RAM_servico__nome")
+            .annotate(total_horas=Sum(F("RAM_dataFinal") - F("RAM_dataInicial")))
+            .order_by("RAM_dataInicial__date", "RAM_servico__nome")
+        )
+
+        dados_agrupados = {}
+        for registro in registros_por_dia_servico:
+            dia = registro["RAM_dataInicial__date"].strftime("%d/%m")
+            servico = registro["RAM_servico__nome"]
+            horas = registro["total_horas"].total_seconds() / 3600  # Converte para horas
+
+            if horas > 0:
+                if dia not in dados_agrupados:
+                    dados_agrupados[dia] = {}
+                dados_agrupados[dia][servico] = horas
+
+        # Criando as estruturas para o gráfico
+        barras_labels = list(dados_agrupados.keys())  # Lista de dias selecionados
+        servicos_unicos = sorted(set(servico for dia in dados_agrupados.values() for servico in dia))  # Serviços únicos
+
+        barras_datasets = []
+        cores = ["#3498db", "#2ecc71", "#e74c3c", "#f1c40f", "#9b59b6", "#1abc9c", "#ff5733"]  # Lista de cores
+
+        for i, servico in enumerate(servicos_unicos):
+            data = [dados_agrupados[dia].get(servico, 0) for dia in barras_labels]  # Horas por dia
+
+            if sum(data) > 0:  # Garante que o serviço tenha ao menos uma entrada maior que zero
+                dataset = {
+                    "label": servico,
+                    "backgroundColor": cores[i % len(cores)],  # Rotaciona as cores
+                    "data": data
+                }
+            barras_datasets.append(dataset)
+
+
+        # Adicionando ao contexto
         context["total_horas"] = formatar_horas(total_horas)
         context["atividades_por_dia"] = json.dumps(atividades_por_dia)
         context["servicos_labels"] = json.dumps(servicos_labels)
         context["servicos_values"] = json.dumps(servicos_values)
+        context["barras_labels"] = json.dumps(barras_labels)
+        context["barras_datasets"] = json.dumps(barras_datasets)
         context["data_inicio"] = data_inicio.strftime("%Y-%m-%d")
         context["data_fim"] = data_fim.strftime("%Y-%m-%d")
 
