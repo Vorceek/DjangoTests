@@ -63,12 +63,11 @@ class AdminView(LoginRequiredMixin, TemplateView):
                 data_inicio = datetime.strptime(data_inicio_str, "%Y-%m-%d").date()
                 data_fim = datetime.strptime(data_fim_str, "%Y-%m-%d").date()
             except ValueError:
-                data_inicio = now().date() - timedelta(days=6)
-                data_fim = now().date()
+                data_inicio = now().date() - timedelta(days=now().weekday() + 7)  # Segunda-feira passada
+                data_fim = data_inicio + timedelta(days=6)  # Domingo passado
         else:
-            data_inicio = now().date() - timedelta(days=6)
-            data_fim = now().date()
-
+            data_inicio = now().date() - timedelta(days=now().weekday() + 7)  # Segunda-feira passada
+            data_fim = data_inicio + timedelta(days=6)  # Domingo passado
         # Gráfico de atividades por dia da semana
         atividades = RegistroAtividadeModel.objects.filter(
             RAM_colaborador__groups__name__in=setores_dinamicos,
@@ -125,6 +124,8 @@ class AdminView(LoginRequiredMixin, TemplateView):
         context["atividades_por_dia"] = json.dumps(atividades_por_dia)
         context["servicos_labels"] = json.dumps(servicos_labels)
         context["servicos_values"] = json.dumps(servicos_values)
+        context["data_inicio"] = data_inicio.strftime("%Y-%m-%d")
+        context["data_fim"] = data_fim.strftime("%Y-%m-%d")
 
         return context
     

@@ -8,7 +8,7 @@ main {
     flex-direction: column;
     width: 80%; /* Ajuste conforme necessário */
     max-width: 500px; /* Limita o tamanho */
-    max-height: 450px;
+    max-height: 390px;
     margin: 20px auto; /* Centraliza e adiciona espaçamento */
 }
 
@@ -24,7 +24,6 @@ h2 {
     align-items: center;
     justify-content: center;
     padding: 5px;
-    margin-bottom: 20px;
     border-radius: 20px;
 }
 

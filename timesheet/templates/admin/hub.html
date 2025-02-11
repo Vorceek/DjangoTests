@@ -25,6 +25,7 @@
         <input type="date" id="dataFim" name="data_fim" />
     </div>
     <button class="filter-btn" onclick="filtrarAtividades()">Filtrar</button>
+    <button type="button" onclick="limparFiltros()" class="filter-btn">Limpar Filtros</button>
     </div>
 
     <div class="chart-boxes">
@@ -176,6 +177,28 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     });
+</script>
+<script>
+    function limparFiltros() {
+        // Obtém a data de hoje e calcula a semana passada
+        var hoje = new Date();
+        var primeiroDiaSemanaPassada = new Date(hoje);
+        primeiroDiaSemanaPassada.setDate(hoje.getDate() - hoje.getDay() - 6); // Segunda-feira da semana passada
+        var ultimoDiaSemanaPassada = new Date(primeiroDiaSemanaPassada);
+        ultimoDiaSemanaPassada.setDate(primeiroDiaSemanaPassada.getDate() + 6); // Domingo da semana passada
+
+        // Formata para YYYY-MM-DD (padrão dos inputs)
+        function formatarData(data) {
+            return data.toISOString().split('T')[0];
+        }
+
+        // Define os valores padrão
+        document.getElementById("dataInicio").value = formatarData(primeiroDiaSemanaPassada);
+        document.getElementById("dataFim").value = formatarData(ultimoDiaSemanaPassada);
+
+        // Submete o formulário com os valores padrões
+        window.location.href = "?data_inicio=" + formatarData(primeiroDiaSemanaPassada) + "&data_fim=" + formatarData(ultimoDiaSemanaPassada);
+    }
 </script>
 
 
