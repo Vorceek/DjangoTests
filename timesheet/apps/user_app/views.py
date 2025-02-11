@@ -55,7 +55,7 @@ class GerenciarAtividadesView(LoginRequiredMixin, View):
         user = request.user
         context = self.get_context_data(user)
         atividades_usuario = RegistroAtividadeModel.objects.filter(RAM_colaborador=user).order_by('-RAM_dataInicial')
-        paginator = Paginator(atividades_usuario, 9)
+        paginator = Paginator(atividades_usuario, 20)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         context.update({
@@ -83,7 +83,7 @@ class GerenciarAtividadesView(LoginRequiredMixin, View):
         else:
             context = self.get_context_data(user)
             atividades_usuario = RegistroAtividadeModel.objects.filter(RAM_colaborador=user).order_by('-RAM_dataInicial')
-            paginator = Paginator(atividades_usuario, 9)
+            paginator = Paginator(atividades_usuario, 20)
             page_number = request.GET.get('page')
             page_obj = paginator.get_page(page_number)
             context.update({

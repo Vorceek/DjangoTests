@@ -24,7 +24,7 @@ table {
 }
 
 th, td {
-    padding: 15px; /* Espaçamento interno nas células */
+    padding: 10px; /* Espaçamento interno nas células */
     text-align: left; /* Alinhamento do texto à esquerda */
     border-bottom: 1px solid #ddd; /* Borda abaixo de cada linha */
 }
@@ -33,6 +33,7 @@ th, td {
 td {
     padding-left: 20px; /* Espaçamento à esquerda */
     padding-right: 20px; /* Espaçamento à direita */
+
 }
 
 th {
