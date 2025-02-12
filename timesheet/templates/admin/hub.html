@@ -18,12 +18,12 @@
 
     <div class="input-group">
         <label for="dataInicio">Data Inicial:</label>
-        <input type="date" id="dataInicio" name="data_inicio" />
+        <input type="date" id="dataInicio" name="data_inicio" value="{{ data_inicio }}" />
     </div>
 
     <div class="input-group">
         <label for="dataFim">Data Final:</label>
-        <input type="date" id="dataFim" name="data_fim" />
+        <input type="date" id="dataFim" name="data_fim" value="{{ data_fim }}" />
     </div>
     <button class="filter-btn" onclick="filtrarAtividades()">Filtrar</button>
     <button type="button" onclick="limparFiltros()" class="filter-btn">Limpar Filtros</button>
