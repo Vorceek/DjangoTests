@@ -6,19 +6,17 @@
     gap: 30px;
     width: 80%;
     max-width: 1200px;
-    margin: 50px auto;
-    margin-top: 5px;
-    padding-right: 30px;
-    padding-left: 30px;
+    margin: 50px auto 5px;
+    padding: 30px;
     background-color: #404040;
-
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     color: white;
 }
 
+/* Títulos */
 .h1-gerar-relatorio {
-    margin: 0px;
+    margin: 0;
     padding-top: 15px;
 }
 
@@ -32,50 +30,142 @@
 .main-filters {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 20px;
-    justify-content: space-between;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     width: 100%;
 }
 
 .filter-group {
-    flex: 1 1 30%;
-    min-width: 250px;
+    flex: 1 1 20%;
+    max-width: 250px;
     display: flex;
+    padding: 10px;
     flex-direction: column;
     gap: 10px;
 }
 
+/* Ocultar o select original para evitar duplicação */
+.filter-group select {
+    display: none;
+}
+
+/* Estilo do MultiSelect Dropdown */
+.multiselect-dropdown {
+    background: #303030;
+    border: 1px solid #555;
+    border-radius: 5px;
+    color: white;
+    padding: 10px;
+    width: 100%;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.3s ease-in-out;
+}
+
+.multiselect-dropdown:hover {
+    background: #444;
+}
+
+/* Lista de opções do MultiSelect */
+.multiselect-dropdown-list {
+    position: absolute;
+    background: #303030;
+    border: 1px solid #555;
+    border-radius: 5px;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+    width: 100%;
+    z-index: 10;
+}
+
+.multiselect-dropdown-list.active {
+    display: block;
+}
+
+.multiselect-dropdown-list div {
+    padding: 10px;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+}
+
+.multiselect-dropdown-list div:hover {
+    background: #555;
+}
+
+/* COR Preto DA LETRA DO FILTRO */
+.select2-container--default .select2-selection--multiple .select2-selection__choice__display {
+    color: #303030;
+}
+
+.select2-results__option--selectable {
+    color: #303030;
+}
+
+/* Inputs e Selects */
 input[type="text"],
-input[type="date"] {
+input[type="date"],
+select {
     padding: 10px;
     border: 1px solid #555;
     border-radius: 5px;
-    background-color: #303030;
-    color: white;
+    background-color: white;
+    color: #303030;
+    width: 100%;
 }
 
+/* Placeholder */
 input::placeholder {
     color: #bbb;
 }
 
-.filter-list {
-    max-height: 150px;
-    overflow-y: auto;
+/* Multiselect Estilizado */
+.multiselect-dropdown {
+    background: #303030;
     border: 1px solid #555;
-    border-radius: 4px;
-    padding: 5px;
-    background-color: #383838;
+    border-radius: 5px;
+    color: white;
+    padding: 10px;
+    width: 100%;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.3s ease-in-out;
 }
 
-/* Estilo dos botões */
-button {
-    padding: 12px 20px;
-    border: none;
+.multiselect-dropdown:hover {
+    background: #444;
+}
+
+/* Lista de opções */
+.multiselect-dropdown-list {
+    position: absolute;
+    background: #303030;
+    border: 1px solid #555;
     border-radius: 5px;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+    width: 100%;
+    z-index: 10;
+}
+
+
+/* Botões */
+button {
+    padding: 10px 20px;
     background-color: #007bff;
     color: white;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
-    font-size: 16px;
     transition: background-color 0.3s ease, transform 0.1s ease;
 }
 
@@ -96,13 +186,13 @@ button:hover {
 .activity-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 0px;
+    margin-top: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .activity-table th,
 .activity-table td {
-    padding: 5px;
+    padding: 8px;
     border: 1px solid #555;
     text-align: center;
 }
@@ -121,58 +211,17 @@ button:hover {
     background-color: #383838;
 }
 
-
-/* PAGINATION */
-
+/* Paginação */
 .pagination {
     display: flex;
-    justify-content: center; /* Centraliza a paginação */
-    align-items: center;
-    margin-top: 0px; /* Espaço acima da paginação */
+    justify-content: center;
+    margin-top: 15px;
 }
 
 .pagination-list {
     list-style: none;
     padding: 0;
     display: flex;
-    gap: 8px; /* Espaçamento entre os itens */
+    gap: 8px;
 }
 
-.pagination-list li {
-    display: inline;
-    padding: 5px 10px;
-    border-radius: 3px;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-    font-size: 12px;
-    transition: background-color 0.2s ease;
-}
-
-.pagination-list li a {
-    text-decoration: none;
-    color: inherit;
-}
-
-.pagination-list li:hover {
-    background-color: #0056b3; /* Azul escurecido para hover */
-    color: white;
-}
-
-.pagination-list .current {
-    font-weight: bold;
-    background-color: #e9ecef;
-    color: #007bff;
-    cursor: default;
-}
-
-.pagination-list .disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    background-color: #d6d6d6;
-}
-
-.btn-danger {
-    text-decoration: none;
-    color: #ffff;
-}

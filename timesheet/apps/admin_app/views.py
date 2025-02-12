@@ -372,10 +372,10 @@ class GerarRelatorioView(LoginRequiredMixin, AdminRequiredMixin, View):
             return response
 
         # Para os filtros exibidos no template, obtemos clientes, serviços, atividades e colaboradores
-        clientes = Cliente.objects.filter(setor__in=setores_usuario).distinct()
-        servicos = Servico.objects.filter(setor__in=setores_usuario).distinct()
-        atividadegeral = Atividade.objects.filter(setor__in=setores_usuario).distinct()
-        colaboradores = User.objects.filter(groups__in=setores_usuario).distinct()
+        clientes = Cliente.objects.filter(setor__in=setores_usuario).distinct().order_by('nome')
+        servicos = Servico.objects.filter(setor__in=setores_usuario).distinct().order_by('nome')
+        atividadegeral = Atividade.objects.filter(setor__in=setores_usuario).distinct().order_by('nome')
+        colaboradores = User.objects.filter(groups__in=setores_usuario).distinct().order_by('username')
 
         context = {
             'atividades': atividades_page,
