@@ -21,7 +21,7 @@ h2 {
 .date-filter {
     display: flex;
     gap: 15px;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
     padding: 5px;
     border-radius: 20px;
@@ -54,6 +54,9 @@ h2 {
 }
 
 .filter-btn {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
     background-color: #3498db;
     color: white;
     border: none;
@@ -83,4 +86,9 @@ h2 {
 
 #barrasEmpilhadas {
     margin-top: 200px;
+}
+
+.buttons-hub {
+    display: flex;
+    gap: 1em;
 }

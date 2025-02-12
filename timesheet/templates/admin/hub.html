@@ -12,9 +12,9 @@
 
 <div class="chart-filter">
 
-  <h2>Filtro Por Hora</h2>
+    <h2>Horas Trabalhadas por Serviço</h2>
 
-  <div class="date-filter">
+    <div class="date-filter">
 
     <div class="input-group">
         <label for="dataInicio">Data Inicial:</label>
@@ -25,19 +25,21 @@
         <label for="dataFim">Data Final:</label>
         <input type="date" id="dataFim" name="data_fim" value="{{ data_fim }}" />
     </div>
-    <button class="filter-btn" onclick="filtrarAtividades()">Filtrar</button>
-    <button type="button" onclick="limparFiltros()" class="filter-btn">Limpar Filtros</button>
+    
+    <div class="buttons-hub">
+        <button class="filter-btn" onclick="filtrarAtividades()">Filtrar</button>
+        <button type="button" onclick="limparFiltros()" class="filter-btn">Limpar Filtros</button>
+    </div>
+
     </div>
 
     <div class="chart-boxes">
         <div class="chart-container">
-            <h2>Horas Trabalhadas por Serviço</h2>
             <p><strong>Total de Horas Trabalhadas:</strong> {{ total_horas }}</p>
             <canvas id="servicoChart"></canvas>
         </div>
     
         <div class="chart-container">
-            <h2>Detalhes Das Horas</h2>
             <canvas id="barChartAtividades"></canvas>
         </div>
     </div>
