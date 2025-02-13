@@ -20,6 +20,8 @@ from django.db.models import Sum, F
 from django.utils.timezone import now
 from django.db.models.functions import ExtractWeekDay
 import json
+from django.db.models import F, ExpressionWrapper, fields, Case, When, Value
+from django.db.models.functions import Coalesce
 
 class AdminView(LoginRequiredMixin, TemplateView):
     template_name = "admin/hub.html"
@@ -312,7 +314,6 @@ class GerarRelatorioView(LoginRequiredMixin, AdminRequiredMixin, View):
     login_url = "login/"  # URL para redirecionamento se não estiver logado
 
     def get(self, request, *args, **kwargs):
-
         def get_user_groups(user):
             """Retorna os grupos do usuário, excluindo ADMINISTRADOR e USER."""
             return user.groups.exclude(name__in=['ADMINISTRADOR', 'USER'])
@@ -320,11 +321,22 @@ class GerarRelatorioView(LoginRequiredMixin, AdminRequiredMixin, View):
         # Obtém os grupos (setores) do usuário (usando os grupos do Django)
         setores_usuario = get_user_groups(request.user)
 
-        # Filtra as atividades cujo cliente pertence a algum desses grupos
+        # Filtra as atividades cujo cliente, atividade e colaborador pertencem a algum desses grupos
         atividades = RegistroAtividadeModel.objects.filter(
             RAM_cliente__setor__in=setores_usuario,  # Filtra pelo cliente
-            RAM_atividade__setor__in=setores_usuario  # Filtra pela atividade
+            RAM_atividade__setor__in=setores_usuario,  # Filtra pela atividade
+            RAM_colaborador__groups__in=setores_usuario  # Filtra pelo colaborador
         ).distinct()
+
+        # Ordena as atividades
+        atividades = atividades.order_by(
+            Case(
+                When(RAM_dataFinal__isnull=True, then=Value(0)),  # Atividades em aberto primeiro
+                default=Value(1),  # Atividades finalizadas depois
+                output_field=fields.IntegerField(),
+            ),
+            '-RAM_duracao'  # Ordena atividades em aberto por data de início (mais recente primeiro)
+        )
 
         # Filtros checkbox
         servico_ids = request.GET.getlist('servico')
@@ -354,10 +366,11 @@ class GerarRelatorioView(LoginRequiredMixin, AdminRequiredMixin, View):
             except ValueError:
                 pass
 
-        atividades = atividades.order_by('-RAM_dataInicial')
+        # Paginação
         paginator = Paginator(atividades, 20)
         atividades_page = paginator.get_page(request.GET.get('page'))
 
+        # Calcula a duração total
         total_segundos = sum(
             (a.RAM_dataFinal - a.RAM_dataInicial).total_seconds()
             for a in atividades if a.RAM_dataFinal and a.RAM_dataInicial
@@ -377,7 +390,7 @@ class GerarRelatorioView(LoginRequiredMixin, AdminRequiredMixin, View):
             response['Content-Disposition'] = 'attachment; filename="relatorio_atividades.xlsx"'
             return response
 
-        # Para os filtros exibidos no template, obtemos clientes, serviços, atividades e colaboradores
+        # Filtra clientes, serviços, atividades e colaboradores com base nos grupos do usuário
         clientes = Cliente.objects.filter(setor__in=setores_usuario).distinct().order_by('nome')
         servicos = Servico.objects.filter(setor__in=setores_usuario).distinct().order_by('nome')
         atividadegeral = Atividade.objects.filter(setor__in=setores_usuario).distinct().order_by('nome')
@@ -401,4 +414,3 @@ class GerarRelatorioView(LoginRequiredMixin, AdminRequiredMixin, View):
         }
         context.update(aside_icons(request))
         return render(request, 'admin/relatorio.html', context)
-
