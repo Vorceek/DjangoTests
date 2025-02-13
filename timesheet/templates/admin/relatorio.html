@@ -262,7 +262,113 @@
     }
 </script>
     
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const clienteSelect = document.getElementById("cliente");
+        const servicoSelect = document.getElementById("servico");
+        const atividadeSelect = document.getElementById("atividade");
     
+        // Quando um cliente for selecionado, filtra os serviços
+        clienteSelect.addEventListener("change", function () {
+            const clienteIds = Array.from(clienteSelect.selectedOptions).map(option => option.value);
+            atualizarServicos(clienteIds);
+        });
+    
+        // Quando um serviço for selecionado, filtra as atividades
+        servicoSelect.addEventListener("change", function () {
+            const servicoIds = Array.from(servicoSelect.selectedOptions).map(option => option.value);
+            atualizarAtividades(servicoIds);
+        });
+    
+        // Quando uma atividade for selecionada, filtra os serviços relacionados (se necessário)
+        atividadeSelect.addEventListener("change", function () {
+            const atividadeIds = Array.from(atividadeSelect.selectedOptions).map(option => option.value);
+            atualizarServicosPorAtividade(atividadeIds);
+        });
+    
+        // Função para atualizar serviços com base no cliente selecionado
+        function atualizarServicos(clienteIds) {
+            servicoSelect.innerHTML = '<option value="">Carregando...</option>';
+    
+            if (clienteIds.length === 0) {
+                servicoSelect.innerHTML = '<option value="">Selecione um cliente</option>';
+                atividadeSelect.innerHTML = '<option value="">Selecione um serviço primeiro</option>';
+                return;
+            }
+    
+            fetch(`/get_servicos_por_cliente/?${new URLSearchParams({ 'cliente_ids[]': clienteIds })}`)
+                .then(response => response.json())
+                .then(data => {
+                    servicoSelect.innerHTML = '';
+                    if (data.servicos.length === 0) {
+                        servicoSelect.innerHTML = '<option value="">Nenhum serviço disponível</option>';
+                    } else {
+                        data.servicos.forEach(servico => {
+                            const option = document.createElement("option");
+                            option.value = servico.id;
+                            option.textContent = servico.nome;
+                            servicoSelect.appendChild(option);
+                        });
+                    }
+                })
+                .catch(error => console.error("Erro ao buscar serviços:", error));
+        }
+    
+        // Função para atualizar atividades com base no serviço selecionado
+        function atualizarAtividades(servicoIds) {
+            atividadeSelect.innerHTML = '<option value="">Carregando...</option>';
+    
+            if (servicoIds.length === 0) {
+                atividadeSelect.innerHTML = '<option value="">Selecione um serviço</option>';
+                return;
+            }
+    
+            fetch(`/get_atividades_por_servico/?${new URLSearchParams({ 'servico_ids[]': servicoIds })}`)
+                .then(response => response.json())
+                .then(data => {
+                    atividadeSelect.innerHTML = '';
+                    if (data.atividades.length === 0) {
+                        atividadeSelect.innerHTML = '<option value="">Nenhuma atividade disponível</option>';
+                    } else {
+                        data.atividades.forEach(atividade => {
+                            const option = document.createElement("option");
+                            option.value = atividade.id;
+                            option.textContent = atividade.nome;
+                            atividadeSelect.appendChild(option);
+                        });
+                    }
+                })
+                .catch(error => console.error("Erro ao buscar atividades:", error));
+        }
+    
+        // Função para atualizar serviços com base na atividade selecionada
+        function atualizarServicosPorAtividade(atividadeIds) {
+            servicoSelect.innerHTML = '<option value="">Carregando...</option>';
+    
+            if (atividadeIds.length === 0) {
+                servicoSelect.innerHTML = '<option value="">Selecione uma atividade</option>';
+                return;
+            }
+    
+            fetch(`/get_servicos_por_atividade/?${new URLSearchParams({ 'atividade_ids[]': atividadeIds })}`)
+                .then(response => response.json())
+                .then(data => {
+                    servicoSelect.innerHTML = '';
+                    if (data.servicos.length === 0) {
+                        servicoSelect.innerHTML = '<option value="">Nenhum serviço disponível</option>';
+                    } else {
+                        data.servicos.forEach(servico => {
+                            const option = document.createElement("option");
+                            option.value = servico.id;
+                            option.textContent = servico.nome;
+                            servicoSelect.appendChild(option);
+                        });
+                    }
+                })
+                .catch(error => console.error("Erro ao buscar serviços:", error));
+        }
+    });
+    </script>
     
 
 

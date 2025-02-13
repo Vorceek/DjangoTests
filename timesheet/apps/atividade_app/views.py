@@ -18,19 +18,46 @@ def formatar_duracao(total_segundos):
     return f"{horas:02d}:{minutos:02d}:{segundos:02d}"
 
 # ----------------------
+# Pegar o Grupo do Usuário
+# ----------------------
+def get_user_groups(user):
+    """Retorna os grupos do usuário, excluindo ADMINISTRADOR e USER."""
+    return user.groups.exclude(name__in=['ADMINISTRADOR', 'USER'])
+
+# ----------------------
 # Endpoints AJAX
 # ----------------------
 def get_servicos(request, cliente_id):
-    """Retorna os serviços associados ao cliente."""
+    """Retorna os serviços associados ao cliente, filtrados pelos grupos do usuário."""
     cliente = get_object_or_404(Cliente, id=cliente_id)
-    servicos = cliente.servicos.all()
+    
+    # Obtém os grupos do usuário (excluindo ADMINISTRADOR e USER)
+    user_groups = get_user_groups(request.user)
+    
+    # Filtra os serviços que pertencem aos grupos do usuário
+    servicos = Servico.objects.filter(
+        clientes=cliente,
+        setor__in=user_groups
+    ).distinct()
+    
+    
     data = {'servicos': [{'id': s.id, 'nome': s.nome} for s in servicos]}
     return JsonResponse(data)
 
 def get_atividades(request, servico_id):
-    """Retorna as atividades associadas ao serviço."""
+    """Retorna as atividades associadas ao serviço, filtradas pelos grupos do usuário."""
     servico = get_object_or_404(Servico, id=servico_id)
-    atividades = servico.atividades.all()
+    
+    # Obtém os grupos do usuário (excluindo ADMINISTRADOR e USER)
+    user_groups = get_user_groups(request.user)
+    
+    # Filtra as atividades que pertencem aos grupos do usuário
+    atividades = Atividade.objects.filter(
+        servicos=servico,
+        setor__in=user_groups
+    ).distinct()
+    
+    
     data = {'atividades': [{'id': a.id, 'nome': a.nome} for a in atividades]}
     return JsonResponse(data)
 
