@@ -312,12 +312,18 @@ class GerarRelatorioView(LoginRequiredMixin, AdminRequiredMixin, View):
     login_url = "login/"  # URL para redirecionamento se não estiver logado
 
     def get(self, request, *args, **kwargs):
+
+        def get_user_groups(user):
+            """Retorna os grupos do usuário, excluindo ADMINISTRADOR e USER."""
+            return user.groups.exclude(name__in=['ADMINISTRADOR', 'USER'])
+
         # Obtém os grupos (setores) do usuário (usando os grupos do Django)
-        setores_usuario = request.user.groups.all()
+        setores_usuario = get_user_groups(request.user)
 
         # Filtra as atividades cujo cliente pertence a algum desses grupos
         atividades = RegistroAtividadeModel.objects.filter(
-            RAM_cliente__setor__in=setores_usuario
+            RAM_cliente__setor__in=setores_usuario,  # Filtra pelo cliente
+            RAM_atividade__setor__in=setores_usuario  # Filtra pela atividade
         ).distinct()
 
         # Filtros checkbox
