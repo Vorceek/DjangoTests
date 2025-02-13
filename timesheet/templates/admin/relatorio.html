@@ -154,6 +154,8 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </main>
 
+<!--Script SELECT2-->
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Inicializa o Select2 para cada select
@@ -177,6 +179,91 @@
         };
     });
 </script>
+
+<!-- Script Alterar Duração Automaticamente -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        iniciarContagem();
+        verificarFinalizacao(); // Inicia a verificação de finalização
+    });
+    
+    // Função para atualizar a duração em tempo real
+    function iniciarContagem() {
+        const atividades = document.querySelectorAll('.activity-table tbody tr');
+    
+        atividades.forEach(function(row) {
+            const dataInicialElement = row.children[4]; // Coluna "Data Inicial"
+            const dataFinalElement = row.children[5]; // Coluna "Data Final"
+            const duracaoElement = row.children[6]; // Coluna "Duração"
+    
+            const dataInicialTexto = dataInicialElement.innerText.trim();
+            const dataFinalTexto = dataFinalElement.innerText.trim();
+    
+            if (!dataInicialTexto || dataFinalTexto) return; // Ignora se já tiver data final
+    
+            const partesData = dataInicialTexto.split(" ");
+            const partesDia = partesData[0].split("/");
+            const dataISO = `${partesDia[2]}-${partesDia[1]}-${partesDia[0]}T${partesData[1]}`;
+            const horaInicioDate = new Date(dataISO);
+    
+            if (isNaN(horaInicioDate.getTime())) {
+                console.error("Erro ao converter a data:", dataInicialTexto);
+                return;
+            }
+    
+            const intervalId = setInterval(function() {
+                if (dataFinalElement.innerText.trim()) {
+                    clearInterval(intervalId);
+                    return;
+                }
+    
+                const tempoAtual = new Date();
+                const diffMilliseconds = tempoAtual - horaInicioDate;
+                const diffSeconds = Math.floor(diffMilliseconds / 1000);
+                const diffMinutes = Math.floor(diffSeconds / 60);
+                const diffHours = Math.floor(diffMinutes / 60);
+                const remainingMinutes = diffMinutes % 60;
+                const remainingSeconds = diffSeconds % 60;
+    
+                const formattedTime = 
+                    String(diffHours).padStart(2, '0') + ':' +
+                    String(remainingMinutes).padStart(2, '0') + ':' +
+                    String(remainingSeconds).padStart(2, '0');
+    
+                duracaoElement.innerText = formattedTime;
+            }, 1000);
+        });
+    }
+    
+    // Função AJAX para verificar atividades finalizadas e atualizar a tabela sem recarregar a página
+    function verificarFinalizacao() {
+        setInterval(function () {
+            fetch(window.location.href, { method: 'GET' }) // Faz um request para a mesma URL da página
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const newDocument = parser.parseFromString(html, 'text/html');
+    
+                    // Atualiza somente as atividades finalizadas sem perder os filtros
+                    document.querySelectorAll('.activity-table tbody tr').forEach((row, index) => {
+                        const newRow = newDocument.querySelectorAll('.activity-table tbody tr')[index];
+                        if (newRow) {
+                            const newFinalDate = newRow.children[5].innerText.trim();
+                            if (newFinalDate) {
+                                row.children[5].innerText = newFinalDate; // Atualiza "Data Final"
+                                row.children[6].innerText = newRow.children[6].innerText; // Atualiza "Duração"
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error('Erro ao buscar atualizações:', error));
+        }, 5000); // Verifica a cada 5 segundos
+    }
+</script>
+    
+    
+    
 
 
 {% endblock %}
