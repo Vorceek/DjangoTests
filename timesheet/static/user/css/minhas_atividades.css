@@ -20,7 +20,7 @@
     display: inline;
     padding: 5px 10px;
     border-radius: 3px;
-    background-color: #007bff;
+    background-color: #1f293f;
     color: white;
     cursor: pointer;
     font-size: 12px;
@@ -40,7 +40,7 @@
 .pagination-list .current {
     font-weight: bold;
     background-color: #e9ecef;
-    color: #007bff;
+    color: #1f293f;
     cursor: default;
 }
 

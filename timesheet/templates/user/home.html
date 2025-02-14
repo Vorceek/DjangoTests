@@ -5,57 +5,55 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'user/css/adicionar_atividade.css' %}">
 <link rel="stylesheet" href="{% static 'user/css/table.css' %}">
-<link rel="stylesheet" href="{% static 'user/css/minhas_atividades.css' %}">
 <link rel="stylesheet" href="{% static 'user/css/modal.css' %}">
+<link rel="stylesheet" href="{% static 'user/css/minhas_atividades.css' %}">
+<link rel="stylesheet" href="{% static 'admin/css/relatorio.css' %}">
 {% endblock %}
 
+<main id="main-form">
 <table>
     <thead>
         <tr class="atividade-topo">
-            <!-- Linha de botão Adicionar Atividade -->
-            <th colspan="6" class="top_buttons">
-                <!-- BOTÃO MODAL E FINALIZAR ATIVIDADE -->
-                <div class="atividade-right">
-                    <div class="atividade-left">
-                        <form method="POST" class="form-add">
-                            {% csrf_token %}
-                            <!-- Campo Cliente -->
-                            <select name="RAM_cliente" id="id_cliente">
-                                <option value="" disabled selected>Selecione o Cliente</option>
-                                {% for cliente in clientes %}
-                                    <option value="{{ cliente.id }}">{{ cliente.nome }}</option>
-                                {% endfor %}
-                            </select>
-                            <!-- Campo Serviço -->
-                            <select name="RAM_servico" id="id_servico">
-                                <option value="" disabled selected>Selecione o Serviço</option>
-                                {% for servico in servicos %}
-                                    <option value="{{ servico.id }}">{{ servico.nome }}</option>
-                                {% endfor %}
-                            </select>
-                            <!-- Campo Atividade -->
-                            <select name="RAM_atividade" id="id_atividade">
-                                <option value="" disabled selected>Selecione a Atividade</option>
-                                {% for atividade in atividades %}
-                                    <option value="{{ atividade.id }}">{{ atividade.nome }}</option>
-                                {% endfor %}
-                            </select>
-                            <button class="botao-add-form" type="submit">Registrar Atividade</button>
-                        </form>
-                        
-                        {% for atividade in page_obj %}
-                            {% if atividade.RAM_ativo %}
-                                <button 
-                                    class="btn-finalizar-atividade" 
-                                    data-id="{{ atividade.id }}" 
-                                    onclick="finalizarAtividadePorElemento(this)">
-                                    Finalizar Atividade
-                                </button>
-                            {% endif %}
+            <h1 class="h1-gerar-relatorio">Registrar Nova Atividade</h1>
+            <div class="main-filters-user">
+                
+                <form method="POST" class="form-add-user">
+                    {% csrf_token %}
+                    <!-- Campo Cliente -->
+                    <select name="RAM_cliente" id="id_cliente">
+                        <option value="" disabled selected>Selecione o Cliente</option>
+                        {% for cliente in clientes %}
+                            <option value="{{ cliente.id }}">{{ cliente.nome }}</option>
                         {% endfor %}
-                    </div>
-                </div>
-            </th>
+                    </select>
+                    <!-- Campo Serviço -->
+                    <select name="RAM_servico" id="id_servico">
+                        <option value="" disabled selected>Selecione o Serviço</option>
+                        {% for servico in servicos %}
+                            <option value="{{ servico.id }}">{{ servico.nome }}</option>
+                        {% endfor %}
+                    </select>
+                    <!-- Campo Atividade -->
+                    <select name="RAM_atividade" id="id_atividade">
+                        <option value="" disabled selected>Selecione a Atividade</option>
+                        {% for atividade in atividades %}
+                            <option value="{{ atividade.id }}">{{ atividade.nome }}</option>
+                        {% endfor %}
+                    </select>
+                                        
+                    {% for atividade in page_obj %}
+                    {% if atividade.RAM_ativo %}
+                        <button 
+                            class="btn-finalizar-atividade" 
+                            data-id="{{ atividade.id }}" 
+                            onclick="finalizarAtividadePorElemento(this)">
+                            Finalizar Atividade
+                        </button>
+                    {% endif %}
+                {% endfor %}
+                    <button class="botao-add-form" type="submit">Registrar Atividade</button>
+                </form>
+            </div>
         </tr>
         <tr>
             <th>Cliente</th>

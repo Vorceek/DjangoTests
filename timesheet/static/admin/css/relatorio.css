@@ -6,10 +6,11 @@
     max-width: 1200px;
     margin: 20px auto 5px;
     padding: 20px;
-    background-color: #404040;
+    padding-right: 50px;
+    background-color: #f1f1f1;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    color: white;
+    color: #1f293f;
 }
 
 /* Títulos */
@@ -29,8 +30,9 @@
     flex-wrap: wrap;
     justify-content: center;
     border-radius: 10px;
+    padding-bottom: 5px;
     gap: 5px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
     width: 100%;
 }
 
@@ -114,7 +116,6 @@ select {
     border-radius: 5px;
     background-color: white;
     color: #303030;
-    width: 100%;
 }
 
 /* Placeholder */
@@ -159,7 +160,7 @@ input::placeholder {
 /* Botões */
 button {
     padding: 10px 20px;
-    background-color: #007bff;
+    background-color: #1f293f;
     color: white;
     border: none;
     border-radius: 5px;
@@ -168,7 +169,7 @@ button {
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #111723;
     transform: scale(1.05);
 }
 
@@ -192,22 +193,21 @@ button:hover {
 .activity-table th,
 .activity-table td {
     padding: 8px;
-    border: 1px solid #555;
     text-align: center;
 }
 
 .activity-table th {
-    background-color: #007bff;
-    color: white;
+    background-color: #bdccb8;
+    color: #1f293f;
     font-weight: bold;
 }
 
 .activity-table tr:nth-child(even) {
-    background-color: #505050;
+    background-color: #fcfcfc;
 }
 
 .activity-table tr:nth-child(odd) {
-    background-color: #383838;
+    background-color: #dfdfdf;
 }
 
 /* Paginação */

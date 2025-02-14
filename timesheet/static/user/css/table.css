@@ -5,7 +5,9 @@ table {
     margin-top: 15px; /* Espaço acima da tabela */
     margin-left: 6%;
     margin-right: 3%; /* Adiciona margem à direita da tabela */
-    background-color: #383838; /* Mantém o fundo da tabela */
+    background-color: #dfdfdf; /* Mantém o fundo da tabela */
+    color: #1f293f;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 /* MENSAGEM DE ERRO */
@@ -26,7 +28,7 @@ table {
 th, td {
     padding: 10px; /* Espaçamento interno nas células */
     text-align: left; /* Alinhamento do texto à esquerda */
-    border-bottom: 1px solid #ddd; /* Borda abaixo de cada linha */
+    border-bottom: 1px solid #f7f7f7;; /* Borda abaixo de cada linha */
 }
 
 /* Adicionando espaçamento entre as colunas */
@@ -37,8 +39,8 @@ td {
 }
 
 th {
-    background-color: #58585e; /* Cor de fundo dos cabeçalhos */
-    color: #ffff; /* Cor do texto dos cabeçalhos */
+    background-color: #bdccb8; /* Cor de fundo dos cabeçalhos */
+    color: #1f293f; /* Cor do texto dos cabeçalhos */
 }
 
 tr:hover {
@@ -53,9 +55,28 @@ thead th {
 
 /* Melhorar a legibilidade da tabela */
 tbody tr:nth-child(even) {
-    background-color: #58585e; /* Cor de fundo para linhas pares */
+    background-color: #fcfcfc; /* Cor de fundo para linhas pares */
 }
 
 tbody tr:nth-child(odd) {
-    background-color: #606066; /* Cor de fundo para linhas ímpares */
+    background-color: #dfdfdf; /* Cor de fundo para linhas ímpares */
+}
+
+.form-add-user {
+    display: flex;
+    flex-direction: row;
+}
+
+.main-filters-user {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    border-radius: 10px;
+    padding-bottom: 15px;
+    padding-top: 15px;
+    gap: 5px;
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    height: 40px;
 }

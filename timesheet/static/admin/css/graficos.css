@@ -36,13 +36,13 @@ h2 {
 .input-group label {
     font-size: 14px;
     font-weight: 600;
-    color: white;
+    color: #1f293f;
     margin-bottom: 5px;
 }
 
 .input-group input {
     padding: 8px;
-    border: 2px solid #3498db;
+    border: 2px solid #1f293f;
     border-radius: 5px;
     font-size: 14px;
     outline: none;
@@ -57,7 +57,7 @@ h2 {
     display: flex;
     justify-content: flex-end;
     align-items: flex-end;
-    background-color: #3498db;
+    background-color: #1f293f;
     color: white;
     border: none;
     padding: 10px 15px;
@@ -70,7 +70,7 @@ h2 {
 }
 
 .filter-btn:hover {
-    background-color: #2980b9;
+    background-color: #1e283b;
 }
 
 .chart-filter {

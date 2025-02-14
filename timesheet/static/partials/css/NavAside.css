@@ -3,8 +3,8 @@ body {
     padding: 0;
     overflow: auto;
     font-family: 'Arial', sans-serif;
-    background-color: #383838;
-    color: #cacaca;
+    background-color: #f1f1f1;
+    color: #1f293f;
 }
 
 /* Nav */
@@ -13,8 +13,8 @@ nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #424244;
-    border-bottom: 1px solid white ;
+    background-color: #bdccb8;
+    border-bottom: 1px solid rgb(146, 142, 142) ;
     padding-bottom: 5px;
     margin-left: auto;
     height: 55px;
@@ -32,11 +32,19 @@ nav {
 /* Nav Direito */
 
 .div-nav-right {
+    display: flex;
+    justify-content: center;
     margin-right: 20px;
 }
 
 .div-user-nav {
+    display: flex;
+    justify-content: center;
     align-items: center;
+}
+
+.div-user-nav h1 {
+    padding-top: 5px;
 }
 
 .div-user-nav ul {
@@ -52,8 +60,10 @@ nav {
 }
 
 #exit-menu {
+    display: flex;
+    justify-content: center;
     font-size: 30px;
-    color: white;
+    color: #1f293f;
 }
 
 #btn-sair {
@@ -69,7 +79,7 @@ nav {
 
 #color-of-view {
     font-size: 30px;
-    color: white;
+    color: #1f293f;
 }
 
 /* Aside */
@@ -84,10 +94,14 @@ aside {
     left: 0;
     width: 5%;
     height: 100vh;
-    background-color: #1b1818;
+    background-color: #1f293f;
 
     position: fixed;
     z-index: 2;
+}
+
+.fa-right-from-bracket {
+    color: #000;
 }
 
 aside ul img {
@@ -155,7 +169,7 @@ main {
 
 .page-links a:hover {
     background-color: #009688; /* Cor de fundo ao passar o mouse */
-    color: white; /* Cor do texto ao passar o mouse */
+    color: #1f293f; /* Cor do texto ao passar o mouse */
 }
 
 select {
