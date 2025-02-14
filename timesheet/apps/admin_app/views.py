@@ -131,7 +131,10 @@ class AdminView(LoginRequiredMixin, TemplateView):
         for registro in registros_por_dia_servico:
             dia = registro["RAM_dataInicial__date"].strftime("%d/%m")
             servico = registro["RAM_servico__nome"]
-            horas = registro["total_horas"].total_seconds() / 3600  # Converte para horas
+            if registro["total_horas"] is not None:
+                horas = registro["total_horas"].total_seconds() / 3600
+            else:
+                horas = 0
 
             if horas > 0:
                 if dia not in dados_agrupados:
@@ -310,35 +313,24 @@ class RelatorioHandler:
         buffer.seek(0)
         return buffer
 
+
 class GerarRelatorioView(LoginRequiredMixin, AdminRequiredMixin, View):
-    login_url = "login/"  # URL para redirecionamento se não estiver logado
+    login_url = "login/"
 
     def get(self, request, *args, **kwargs):
         def get_user_groups(user):
             """Retorna os grupos do usuário, excluindo ADMINISTRADOR e USER."""
             return user.groups.exclude(name__in=['ADMINISTRADOR', 'USER'])
 
-        # Obtém os grupos (setores) do usuário (usando os grupos do Django)
         setores_usuario = get_user_groups(request.user)
 
-        # Filtra as atividades cujo cliente, atividade e colaborador pertencem a algum desses grupos
         atividades = RegistroAtividadeModel.objects.filter(
-            RAM_cliente__setor__in=setores_usuario,  # Filtra pelo cliente
-            RAM_atividade__setor__in=setores_usuario,  # Filtra pela atividade
-            RAM_colaborador__groups__in=setores_usuario  # Filtra pelo colaborador
+            RAM_cliente__setor__in=setores_usuario,
+            RAM_atividade__setor__in=setores_usuario,
+            RAM_colaborador__groups__in=setores_usuario
         ).distinct()
 
-        # Ordena as atividades
-        atividades = atividades.order_by(
-            Case(
-                When(RAM_dataFinal__isnull=True, then=Value(0)),  # Atividades em aberto primeiro
-                default=Value(1),  # Atividades finalizadas depois
-                output_field=fields.IntegerField(),
-            ),
-            '-RAM_duracao'  # Ordena atividades em aberto por data de início (mais recente primeiro)
-        )
-
-        # Filtros checkbox
+        # Aplicação de Filtros
         servico_ids = request.GET.getlist('servico')
         if servico_ids:
             atividades = atividades.filter(RAM_servico__id__in=servico_ids)
@@ -355,7 +347,7 @@ class GerarRelatorioView(LoginRequiredMixin, AdminRequiredMixin, View):
         if colaborador_ids:
             atividades = atividades.filter(RAM_colaborador__id__in=colaborador_ids)
 
-        # Filtros de data – filtramos pela data de início (RAM_dataInicial)
+        # Filtros de data
         hora = request.GET.get('hora')
         data_fim = request.GET.get('data_fim')
         if hora and data_fim:
@@ -365,6 +357,13 @@ class GerarRelatorioView(LoginRequiredMixin, AdminRequiredMixin, View):
                 atividades = atividades.filter(RAM_dataInicial__gte=hora_datetime, RAM_dataInicial__lte=data_fim_datetime)
             except ValueError:
                 pass
+
+        # **🚀 Separação das Atividades**
+        atividades_abertas = atividades.filter(RAM_dataFinal__isnull=True).order_by('-RAM_duracao')
+        atividades_fechadas = atividades.filter(RAM_dataFinal__isnull=False).order_by('-RAM_dataInicial')
+
+        # Combina as listas
+        atividades = list(atividades_abertas) + list(atividades_fechadas)
 
         # Paginação
         paginator = Paginator(atividades, 20)
@@ -390,7 +389,7 @@ class GerarRelatorioView(LoginRequiredMixin, AdminRequiredMixin, View):
             response['Content-Disposition'] = 'attachment; filename="relatorio_atividades.xlsx"'
             return response
 
-        # Filtra clientes, serviços, atividades e colaboradores com base nos grupos do usuário
+        # Carregar os dados filtrados
         clientes = Cliente.objects.filter(setor__in=setores_usuario).distinct().order_by('nome')
         servicos = Servico.objects.filter(setor__in=setores_usuario).distinct().order_by('nome')
         atividadegeral = Atividade.objects.filter(setor__in=setores_usuario).distinct().order_by('nome')
