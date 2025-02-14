@@ -261,115 +261,108 @@
         }, 5000); // Verifica a cada 5 segundos
     }
 </script>
-    
+   
+<!--Lógica Cliente > Serviço > Atividade-->
+
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const clienteSelect = document.getElementById("cliente");
-        const servicoSelect = document.getElementById("servico");
-        const atividadeSelect = document.getElementById("atividade");
+    $(document).ready(function() {
+        // Pega os selects como jQuery objects
+        var $cliente    = $("#cliente"),
+            $servico    = $("#servico"),
+            $atividade  = $("#atividade");
     
-        // Quando um cliente for selecionado, filtra os serviços
-        clienteSelect.addEventListener("change", function () {
-            const clienteIds = Array.from(clienteSelect.selectedOptions).map(option => option.value);
-            atualizarServicos(clienteIds);
-        });
+        // Guarda as opções originais
+        var originalServicos   = $servico.html();
+        var originalAtividades = $atividade.html();
     
-        // Quando um serviço for selecionado, filtra as atividades
-        servicoSelect.addEventListener("change", function () {
-            const servicoIds = Array.from(servicoSelect.selectedOptions).map(option => option.value);
-            atualizarAtividades(servicoIds);
-        });
+        // Função para reinicializar o Select2 em um elemento
+        function refreshSelect2($el, placeholder) {
+            $el.select2('destroy');
+            $el.select2({
+                placeholder: placeholder,
+                allowClear: true,
+                width: '100%'
+            });
+        }
     
-        // Quando uma atividade for selecionada, filtra os serviços relacionados (se necessário)
-        atividadeSelect.addEventListener("change", function () {
-            const atividadeIds = Array.from(atividadeSelect.selectedOptions).map(option => option.value);
-            atualizarServicosPorAtividade(atividadeIds);
-        });
+        // Inicializa os três selects
+        refreshSelect2($cliente, "Selecione...");
+        refreshSelect2($servico, "Selecione o Serviço");
+        refreshSelect2($atividade, "Selecione a Atividade");
     
-        // Função para atualizar serviços com base no cliente selecionado
-        function atualizarServicos(clienteIds) {
-            servicoSelect.innerHTML = '<option value="">Carregando...</option>';
-    
-            if (clienteIds.length === 0) {
-                servicoSelect.innerHTML = '<option value="">Selecione um cliente</option>';
-                atividadeSelect.innerHTML = '<option value="">Selecione um serviço primeiro</option>';
+        // Quando o cliente mudar
+        $cliente.on('change', function() {
+            var selectedClienteIds = $(this).val();
+            console.log("Cliente(s) selecionado(s):", selectedClienteIds);
+            
+            // Se nenhum cliente estiver selecionado, restaura os serviços e atividades originais
+            if (!selectedClienteIds || selectedClienteIds.length === 0) {
+                $servico.html(originalServicos);
+                $atividade.html(originalAtividades);
+                refreshSelect2($servico, "Selecione o Serviço");
+                refreshSelect2($atividade, "Selecione a Atividade");
                 return;
             }
     
-            fetch(`/get_servicos_por_cliente/?${new URLSearchParams({ 'cliente_ids[]': clienteIds })}`)
-                .then(response => response.json())
-                .then(data => {
-                    servicoSelect.innerHTML = '';
-                    if (data.servicos.length === 0) {
-                        servicoSelect.innerHTML = '<option value="">Nenhum serviço disponível</option>';
-                    } else {
-                        data.servicos.forEach(servico => {
-                            const option = document.createElement("option");
-                            option.value = servico.id;
-                            option.textContent = servico.nome;
-                            servicoSelect.appendChild(option);
-                        });
-                    }
-                })
-                .catch(error => console.error("Erro ao buscar serviços:", error));
-        }
+            // Se tiver seleção, busca os serviços filtrados
+            var query = new URLSearchParams({ 'cliente_ids': selectedClienteIds.join(',') });
+            var url   = "/atividade/get_servicos_por_cliente/?" + query.toString();
+            console.log("Buscando serviços em:", url);
+            
+            $.getJSON(url, function(data) {
+                var options = '<option value="">Selecione o Serviço</option>';
+                if (data.servicos && data.servicos.length > 0) {
+                    data.servicos.sort(function(a, b) {
+                        return a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' });
+                    }).forEach(function(servico) {
+                        options += '<option value="' + servico.id + '">' + servico.nome + '</option>';
+                    });
+                } else {
+                    options = '<option value="">Nenhum serviço disponível</option>';
+                }
+                $servico.html(options);
+                refreshSelect2($servico, "Selecione o Serviço");
+                // Restaura atividades originais já que a seleção de serviço mudou
+                $atividade.html(originalAtividades);
+                refreshSelect2($atividade, "Selecione a Atividade");
+            });
+        });
     
-        // Função para atualizar atividades com base no serviço selecionado
-        function atualizarAtividades(servicoIds) {
-            atividadeSelect.innerHTML = '<option value="">Carregando...</option>';
-    
-            if (servicoIds.length === 0) {
-                atividadeSelect.innerHTML = '<option value="">Selecione um serviço</option>';
+        // Quando o serviço mudar
+        $servico.on('change', function() {
+            var selectedServicoIds = $(this).val();
+            console.log("Serviço(s) selecionado(s):", selectedServicoIds);
+            
+            // Se nenhum serviço estiver selecionado, restaura as atividades originais
+            if (!selectedServicoIds || selectedServicoIds.length === 0) {
+                $atividade.html(originalAtividades);
+                refreshSelect2($atividade, "Selecione a Atividade");
                 return;
             }
     
-            fetch(`/get_atividades_por_servico/?${new URLSearchParams({ 'servico_ids[]': servicoIds })}`)
-                .then(response => response.json())
-                .then(data => {
-                    atividadeSelect.innerHTML = '';
-                    if (data.atividades.length === 0) {
-                        atividadeSelect.innerHTML = '<option value="">Nenhuma atividade disponível</option>';
-                    } else {
-                        data.atividades.forEach(atividade => {
-                            const option = document.createElement("option");
-                            option.value = atividade.id;
-                            option.textContent = atividade.nome;
-                            atividadeSelect.appendChild(option);
-                        });
-                    }
-                })
-                .catch(error => console.error("Erro ao buscar atividades:", error));
-        }
+            var query = new URLSearchParams({ 'servico_ids': selectedServicoIds.join(',') });
+            var url   = "/atividade/get_atividades_por_servico/?" + query.toString();
+            console.log("Buscando atividades em:", url);
     
-        // Função para atualizar serviços com base na atividade selecionada
-        function atualizarServicosPorAtividade(atividadeIds) {
-            servicoSelect.innerHTML = '<option value="">Carregando...</option>';
-    
-            if (atividadeIds.length === 0) {
-                servicoSelect.innerHTML = '<option value="">Selecione uma atividade</option>';
-                return;
-            }
-    
-            fetch(`/get_servicos_por_atividade/?${new URLSearchParams({ 'atividade_ids[]': atividadeIds })}`)
-                .then(response => response.json())
-                .then(data => {
-                    servicoSelect.innerHTML = '';
-                    if (data.servicos.length === 0) {
-                        servicoSelect.innerHTML = '<option value="">Nenhum serviço disponível</option>';
-                    } else {
-                        data.servicos.forEach(servico => {
-                            const option = document.createElement("option");
-                            option.value = servico.id;
-                            option.textContent = servico.nome;
-                            servicoSelect.appendChild(option);
-                        });
-                    }
-                })
-                .catch(error => console.error("Erro ao buscar serviços:", error));
-        }
+            $.getJSON(url, function(data) {
+                var options = '<option value="">Selecione a Atividade</option>';
+                if (data.atividades && data.atividades.length > 0) {
+                    data.atividades.sort(function(a, b) {
+                        return a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' });
+                    }).forEach(function(atividade) {
+                        options += '<option value="' + atividade.id + '">' + atividade.nome + '</option>';
+                    });
+                } else {
+                    options = '<option value="">Nenhuma atividade disponível</option>';
+                }
+                $atividade.html(options);
+                refreshSelect2($atividade, "Selecione a Atividade");
+            });
+        });
     });
-    </script>
+</script>
     
-
-
+    
+    
+    
 {% endblock %}
