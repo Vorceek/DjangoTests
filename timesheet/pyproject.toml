@@ -15,6 +15,7 @@ reportlab = "^4.3.0"
 pandas = "^2.2.3"
 openpyxl = "^3.1.5"
 psycopg2 = "^2.9.10"
+django-apscheduler = "^0.7.0"
 
 
 [build-system]
