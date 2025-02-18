@@ -82,7 +82,10 @@
     color: #444;
 }
 
-.atividade-topo .btn-finalizar-atividade {
+.btn-finalizar-atividade {
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
     background-color: #f02222;
     color: white;
     border: none;
@@ -95,12 +98,12 @@
     margin-right: 10px;
 }
 
-.atividade-topo .btn-finalizar-atividade:hover {
+.btn-finalizar-atividade:hover {
     background-color: #ac0303;
 }
 
 .botao-add-form {
-    background-color: #1f293f;
+    background-color: #76a26a;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -113,7 +116,7 @@
 }
 
 .botao-add-form:hover {
-    background-color: #0056b3;
+    background-color: #305a00;
 }
 
 /* Ajusta o layout para telas menores */

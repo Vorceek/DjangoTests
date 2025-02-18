@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_apscheduler',
+    #'django_apscheduler',
 
     'apps.base_app',
     'apps.user_app',
@@ -73,12 +73,15 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'BD_DJANGO_TESTES',
-        'USER': 'postgres',
-        'PASSWORD': '@info2024',
-        'HOST': 'localhost',
-        'PORT': '5432', 
+        'ENGINE': 'mssql',
+        'NAME': 'BD_TIMESHEET_PRODUCAO2_2025',
+        'USER': 'sa',
+        'PASSWORD': 'Tsw@1225!12t-',
+        'HOST': '127.0.0.1\\SQLEXPRESS',
+        'PORT': '1433',
+        'OPTIONS': {
+            'driver': 'ODBC Driver 17 for SQL Server',
+        }
     }
 }
 

@@ -158,7 +158,7 @@ input::placeholder {
 
 
 /* Botões */
-button {
+.form-actions button {
     padding: 10px 20px;
     background-color: #1f293f;
     color: white;
@@ -180,34 +180,6 @@ button:hover {
     width: 100%;
     margin-top: 20px;
     margin-bottom: 20px;
-}
-
-/* Estilo da tabela */
-.activity-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.activity-table th,
-.activity-table td {
-    padding: 8px;
-    text-align: center;
-}
-
-.activity-table th {
-    background-color: #bdccb8;
-    color: #1f293f;
-    font-weight: bold;
-}
-
-.activity-table tr:nth-child(even) {
-    background-color: #fcfcfc;
-}
-
-.activity-table tr:nth-child(odd) {
-    background-color: #dfdfdf;
 }
 
 /* Paginação */
