@@ -9,8 +9,13 @@
 <link rel="stylesheet" href="{% static 'user/css/modal.css' %}">
 <link rel="stylesheet" href="{% static 'admin/css/relatorio.css' %}">
 
+<!--Select2-->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<!--DataTables-->
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css">
 {% endblock %}
 
 <main id="main-form">
@@ -154,6 +159,26 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </main>
 
+<!--Script DataTables-->
+
+<script>
+    $(document).ready(function(){
+      $('.activity-table').DataTable({
+        pageLength: 100,
+        searching: false,
+        paging: false,
+        order: [[4, 'desc']],
+        info: false,
+        language: {
+            url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Portuguese-Brasil.json"
+        },
+        columnDefs: [
+      { orderable: true, targets: 6 } // Desativa a ordenação na coluna de Duração
+        ]
+      });
+    });
+  </script>
+
 <!--Script SELECT2-->
 
 <script>
@@ -180,7 +205,7 @@
     });
 </script>
 
-<!-- Script Alterar Duração Automaticamente -->
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -188,77 +213,81 @@
         verificarFinalizacao(); // Inicia a verificação de finalização
     });
     
-    // Função para atualizar a duração em tempo real
     function iniciarContagem() {
-        const atividades = document.querySelectorAll('.activity-table tbody tr');
+  $('.activity-table tbody tr').each(function(){
+    var $row = $(this);
+    var dataInicialTexto = $row.find('td').eq(4).text().trim();
+    var dataFinalTexto = $row.find('td').eq(5).text().trim();
     
-        atividades.forEach(function(row) {
-            const dataInicialElement = row.children[4]; // Coluna "Data Inicial"
-            const dataFinalElement = row.children[5]; // Coluna "Data Final"
-            const duracaoElement = row.children[6]; // Coluna "Duração"
+    // Se não houver Data Inicial ou se já houver Data Final, ignora essa linha
+    if (!dataInicialTexto || dataFinalTexto) return;
     
-            const dataInicialTexto = dataInicialElement.innerText.trim();
-            const dataFinalTexto = dataFinalElement.innerText.trim();
-    
-            if (!dataInicialTexto || dataFinalTexto) return; // Ignora se já tiver data final
-    
-            const partesData = dataInicialTexto.split(" ");
-            const partesDia = partesData[0].split("/");
-            const dataISO = `${partesDia[2]}-${partesDia[1]}-${partesDia[0]}T${partesData[1]}`;
-            const horaInicioDate = new Date(dataISO);
-    
-            if (isNaN(horaInicioDate.getTime())) {
-                console.error("Erro ao converter a data:", dataInicialTexto);
-                return;
-            }
-    
-            const intervalId = setInterval(function() {
-                if (dataFinalElement.innerText.trim()) {
-                    clearInterval(intervalId);
-                    return;
-                }
-    
-                const tempoAtual = new Date();
-                const diffMilliseconds = tempoAtual - horaInicioDate;
-                const diffSeconds = Math.floor(diffMilliseconds / 1000);
-                const diffMinutes = Math.floor(diffSeconds / 60);
-                const diffHours = Math.floor(diffMinutes / 60);
-                const remainingMinutes = diffMinutes % 60;
-                const remainingSeconds = diffSeconds % 60;
-    
-                const formattedTime = 
-                    String(diffHours).padStart(2, '0') + ':' +
-                    String(remainingMinutes).padStart(2, '0') + ':' +
-                    String(remainingSeconds).padStart(2, '0');
-    
-                duracaoElement.innerText = formattedTime;
-            }, 1000);
-        });
+    // Converte a data inicial (formato "dd/mm/YYYY HH:mm:ss")
+    var partesData = dataInicialTexto.split(" ");
+    var partesDia = partesData[0].split("/");
+    var dataISO = partesDia[2] + '-' + partesDia[1] + '-' + partesDia[0] + 'T' + partesData[1];
+    var horaInicioDate = new Date(dataISO);
+    if (isNaN(horaInicioDate.getTime())) {
+      console.error("Erro ao converter a data:", dataInicialTexto);
+      return;
     }
+    
+    // Guarda a referência da célula de duração (coluna 7, índice 6)
+    var $durationCell = $row.find('td').eq(6);
+    
+    // Atualiza a duração a cada segundo
+    setInterval(function(){
+      // Se a atividade já foi finalizada, não atualiza
+      if ($row.find('td').eq(5).text().trim()) return;
+      
+      var tempoAtual = new Date();
+      var diffMilliseconds = tempoAtual - horaInicioDate;
+      var diffSeconds = Math.floor(diffMilliseconds / 1000);
+      var diffMinutes = Math.floor(diffSeconds / 60);
+      var diffHours = Math.floor(diffMinutes / 60);
+      var remainingMinutes = diffMinutes % 60;
+      var remainingSeconds = diffSeconds % 60;
+      
+      var formattedTime = 
+          String(diffHours).padStart('0') + ':' +
+          String(remainingMinutes).padStart(2, '0') + ':' +
+          String(remainingSeconds).padStart(2, '0');
+      
+      $durationCell.text(formattedTime);
+    }, 1000);
+  });
+}
     
     // Função AJAX para verificar atividades finalizadas e atualizar a tabela sem recarregar a página
     function verificarFinalizacao() {
-        setInterval(function () {
-            fetch(window.location.href, { method: 'GET' }) // Faz um request para a mesma URL da página
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const newDocument = parser.parseFromString(html, 'text/html');
-    
-                    // Atualiza somente as atividades finalizadas sem perder os filtros
-                    document.querySelectorAll('.activity-table tbody tr').forEach((row, index) => {
-                        const newRow = newDocument.querySelectorAll('.activity-table tbody tr')[index];
-                        if (newRow) {
-                            const newFinalDate = newRow.children[5].innerText.trim();
-                            if (newFinalDate) {
-                                row.children[5].innerText = newFinalDate; // Atualiza "Data Final"
-                                row.children[6].innerText = newRow.children[6].innerText; // Atualiza "Duração"
-                            }
-                        }
-                    });
-                })
-                .catch(error => console.error('Erro ao buscar atualizações:', error));
-        }, 5000); // Verifica a cada 5 segundos
+    setInterval(function () {
+        fetch(window.location.href, { method: 'GET' })
+        .then(response => response.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const newDocument = parser.parseFromString(html, 'text/html');
+            const newRows = newDocument.querySelectorAll('.activity-table tbody tr');
+
+            // Para cada linha da tabela DataTables, atualize as colunas "Data Final" (índice 5) e "Duração" (índice 6)
+            table.rows().every(function(rowIdx) {
+            let currentRow = this.node();
+            let newRow = newRows[rowIdx];
+            if(newRow) {
+                const newFinalDate = newRow.children[5].innerText.trim();
+                if(newFinalDate) {
+                // Atualiza a célula de "Data Final"
+                table.cell(rowIdx, 5).data(newFinalDate);
+                // Atualiza a célula de "Duração"
+                const newDuration = newRow.children[6].innerText.trim();
+                table.cell(rowIdx, 6).data(newDuration);
+                }
+            }
+            });
+            // Redesenha a tabela sem perder a ordenação (draw(false) evita reinicialização completa)
+            table.draw(false);
+        })
+        .catch(error => console.error('Erro ao buscar atualizações:', error));
+    }, 5000);
     }
 </script>
    
