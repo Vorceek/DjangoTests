@@ -24,7 +24,7 @@
                 <select id="colaborador" name="colaborador" class="select2" multiple>
                     {% for colaborador in colaboradores %}
                         <option value="{{ colaborador.id }}" {% if colaborador.id|stringformat:"s" in colaborador_ids %}selected{% endif %}>
-                            {{ colaborador.username }}
+                            {{ colaborador.username|capfirst }}
                         </option>
                     {% endfor %}
                 </select>
@@ -106,10 +106,10 @@
         <tbody>
             {% for atividade in atividades %}
                 <tr>
-                    <td>{{ atividade.RAM_colaborador }}</td>
-                    <td>{{ atividade.RAM_cliente }}</td>
-                    <td>{{ atividade.RAM_servico }}</td>
-                    <td>{{ atividade.RAM_atividade }}</td>
+                    <td>{{ atividade.RAM_colaborador|capfirst }}</td>
+                    <td>{{ atividade.RAM_cliente|capfirst }}</td>
+                    <td>{{ atividade.RAM_servico|capfirst }}</td>
+                    <td>{{ atividade.RAM_atividade|capfirst }}</td>
                     <td>{{ atividade.RAM_dataInicial|date:"d/m/Y H:i:s" }}</td>
                     <td>{{ atividade.RAM_dataFinal|date:"d/m/Y H:i:s" }}</td>
                     <td>{{ atividade.duracao_formatada }}</td>

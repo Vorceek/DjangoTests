@@ -25,7 +25,7 @@ def redirect_based_on_group(user):
 def aside_icons(request):
     # Defina os ícones desejados:
     icons = [
-        {'link': '/admin-base/', 'icon_class': 'fa-solid fa-house', 'is_admin': True},
+        #{'link': '/admin-base/', 'icon_class': 'fa-solid fa-house', 'is_admin': True},
         {'link': '/admin-base/relatorio/', 'icon_class': 'fa-solid fa-file-lines', 'is_admin': True},
         #{'link': '/upload/', 'icon_class': 'fa-solid fa-magnifying-glass', 'is_admin': True},
 
