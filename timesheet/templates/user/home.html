@@ -56,6 +56,7 @@
             </div>
         </tr>
         <tr>
+            <th style="display: none;">Ativo</th>
             <th>Cliente</th>
             <th>Serviço</th>
             <th>Atividade</th>
@@ -67,6 +68,7 @@
     <tbody>
         {% for atividade in page_obj %}
         <tr>
+            <td id="ativo" style="display: none;">{{ atividade.RAM_ativo }}</td>
             <td>{{ atividade.RAM_cliente }}</td>
             <td>{{ atividade.RAM_servico }}</td>
             <td>{{ atividade.RAM_atividade }}</td>
@@ -120,6 +122,27 @@
     </ul>
 </div>
 </main>
+
+<!--Script verifica se há atividade aberta ou esconde o botão-->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Para cada linha da tabela, se o status (campo oculto) for "False", remove o botão de finalizar
+        const rows = document.querySelectorAll('.activity-table tbody tr');
+        rows.forEach(function(row) {
+            const statusElem = row.querySelector('[id^="atividade_ativo_"]');
+            const btnFinalizar = row.querySelector('.btn-finalizar-atividade');
+            if (statusElem && btnFinalizar) {
+                const statusText = statusElem.innerText.trim().toLowerCase();
+                if (statusText === "false") {
+                    btnFinalizar.remove();
+                }
+            }
+        });
+    });
+</script>
+
+</script>
 
 <!-- Script para carregar os selects via AJAX  -->
 <script>
@@ -195,102 +218,112 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Script para a contagem do tempo (timer) -->
 <script>
-document.addEventListener('DOMContentLoaded', iniciarContagem);
+    document.addEventListener('DOMContentLoaded', function () {
+        iniciarContagem();
+    });
     
-function iniciarContagem() {
-    // Seleciona todos os elementos cujo id inicia com "hora_inicio_"
-    const atividades = document.querySelectorAll('[id^="hora_inicio_"]');
+    function iniciarContagem() {
+        // Seleciona todos os elementos que indicam a hora de início, por exemplo: <span id="hora_inicio_42">...</span>
+        const atividades = document.querySelectorAll('[id^="hora_inicio_"]');
     
-    atividades.forEach(function(element) {
-        const atividadeId = element.id.split('_')[2];
-        const horaInicio = element.innerText.trim();
-        // Converte "YYYY-MM-DD HH:mm:ss" para "YYYY-MM-DDTHH:mm:ss" (formato ISO)
-        const horaInicioDate = new Date(horaInicio.replace(' ', 'T'));
-        
-        const ativoElement = document.getElementById(`atividade_ativo_${atividadeId}`);
-        const ativo = ativoElement && ativoElement.innerText.trim() === 'True';
-        if (!ativo) return;
-        
-        const intervalId = setInterval(function() {
-            const ativoElementAtual = document.getElementById(`atividade_ativo_${atividadeId}`);
-            const ativoAtual = ativoElementAtual && ativoElementAtual.innerText.trim() === 'True';
-            if (!ativoAtual) {
-                clearInterval(intervalId);
+        atividades.forEach(function(element) {
+            const atividadeId = element.id.split('_')[2];
+            const horaInicio = element.innerText.trim();
+            // Converte "YYYY-MM-DD HH:mm:ss" para "YYYY-MM-DDTHH:mm:ss"
+            const horaInicioDate = new Date(horaInicio.replace(' ', 'T'));
+    
+            if (isNaN(horaInicioDate.getTime())) {
+                console.error("Erro ao converter a data:", horaInicio);
                 return;
             }
-            
-            const tempoAtual = new Date();
-            const diffMilliseconds = tempoAtual - horaInicioDate;
-            const diffSeconds = Math.floor(diffMilliseconds / 1000);
-            const diffMinutes = Math.floor(diffSeconds / 60);
-            const diffHours = Math.floor(diffMinutes / 60);
-            const remainingMinutes = diffMinutes % 60;
-            const remainingSeconds = diffSeconds % 60;
-            
-            const formattedTime = 
-                String(diffHours).padStart('0') + ':' +
-                String(remainingMinutes).padStart(2, '0') + ':' +
-                String(remainingSeconds).padStart(2, '0');
-            
-            const duracaoElement = document.getElementById(`duracao_${atividadeId}`);
-            if (duracaoElement) {
-                duracaoElement.innerText = formattedTime;
+    
+            // Define o intervalo para atualizar a duração a cada 1 segundo
+            const intervalId = setInterval(function() {
+                // Verifica se a atividade foi finalizada
+                // Suponha que exista um elemento com id="data_final_<atividadeId>" que exibe "Atividade Ativa" enquanto estiver aberta
+                const dataFinalElem = document.getElementById(`data_final_${atividadeId}`);
+                if (dataFinalElem && dataFinalElem.innerText.trim() !== "Atividade Ativa") {
+                    // Se a data final foi atualizada, a atividade foi finalizada; para de atualizar
+                    clearInterval(intervalId);
+                    return;
+                }
+                
+                // Calcula a diferença de tempo
+                const tempoAtual = new Date();
+                const diffMilliseconds = tempoAtual - horaInicioDate;
+                const diffSeconds = Math.floor(diffMilliseconds / 1000);
+                const diffMinutes = Math.floor(diffSeconds / 60);
+                const diffHours = Math.floor(diffMinutes / 60);
+                const remainingMinutes = diffMinutes % 60;
+                const remainingSeconds = diffSeconds % 60;
+                
+                const formattedTime = 
+                    String(diffHours).padStart(2, '0') + ':' +
+                    String(remainingMinutes).padStart(2, '0') + ':' +
+                    String(remainingSeconds).padStart(2, '0');
+                
+                // Atualiza o elemento que exibe a duração
+                const duracaoElement = document.getElementById(`duracao_${atividadeId}`);
+                if (duracaoElement) {
+                    duracaoElement.innerText = formattedTime;
+                }
+            }, 1000);
+        });
+    }
+</script>
+    
+<!--Botão Finalizar Atividades-->
+<script>
+function finalizarAtividadePorElemento(buttonElement) {
+    // Desabilita o botão para evitar múltiplos cliques
+    buttonElement.disabled = true;
+    const atividadeId = buttonElement.getAttribute("data-id");
+
+    fetch(`/atividade/finalizar/${atividadeId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ id: atividadeId })
+    })
+    .then(async response => {
+        const data = await response.json();
+        console.log("Resposta da finalização:", data);
+        if (data.success) {
+            // Atualiza o elemento que exibe a data final
+            const dataFinalElement = document.getElementById(`data_final_${atividadeId}`);
+            if (dataFinalElement) {
+                dataFinalElement.innerText = data.dataFinal || 'Finalizado';
             }
-        }, 1000);
+            // Atualiza o status da atividade (campo oculto)
+            const ativoElement = document.getElementById(`atividade_ativo_${atividadeId}`);
+            if (ativoElement) {
+                ativoElement.innerText = 'False';
+            }
+            // Remova ou esconda o botão
+            // Opção 1: Usando a API moderna:
+            buttonElement.remove();
+            // Opção 2: Ou, se preferir, definir display none:
+            // buttonElement.style.display = 'none';
+            console.log("Botão removido para atividade", atividadeId);
+        } else {
+            console.error('Finalização falhou:', data);
+            const statusElement = buttonElement.parentElement;
+            statusElement.innerHTML = '<span>Falha ao finalizar a atividade. Tente novamente.</span>';
+        }
+    })
+    .catch(error => {
+        console.error('Erro na finalização:', error);
+        const statusElement = buttonElement.parentElement;
+        statusElement.innerHTML = '<span>Ocorreu um erro inesperado. Tente novamente.</span>';
+    })
+    .finally(() => {
+        buttonElement.disabled = false;
     });
 }
 </script>
-<script>
-    function finalizarAtividadePorElemento(buttonElement) {
-        // Desabilita o botão para evitar múltiplos cliques
-        buttonElement.disabled = true;
-        const atividadeId = buttonElement.getAttribute("data-id");
-    
-        fetch(`/atividade/finalizar/${atividadeId}/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: JSON.stringify({ id: atividadeId })
-        })
-        .then(async response => {
-            const data = await response.json();
-            if (!response.ok) {
-                console.error('Erro na resposta:', data);
-                throw new Error('Erro na requisição: ' + response.status);
-            }
-            return data;
-        })
-        .then(data => {
-            if (data.success) {
-                // Atualiza o elemento que exibe a data final
-                const dataFinalElement = document.getElementById(`data_final_${atividadeId}`);
-                if (dataFinalElement) {
-                    dataFinalElement.innerText = data.dataFinal || 'Finalizado';
-                }
-                // Remove o botão e exibe status de finalizado
-                buttonElement.remove();
-                // Recarrega a página após um curto delay para atualizar a interface
-                setTimeout(() => {
-                    location.reload();
-                }, 500);
-            } else {
-                console.error('Finalização falhou:', data);
-                const statusElement = buttonElement.parentElement;
-                statusElement.innerHTML = '<span>Falha ao finalizar a atividade. Tente novamente.</span>';
-            }
-        })
-        .catch(error => {
-            console.error('Erro na finalização:', error);
-            const statusElement = buttonElement.parentElement;
-            statusElement.innerHTML = '<span>Ocorreu um erro inesperado. Tente novamente.</span>';
-        })
-        .finally(() => {
-            buttonElement.disabled = false;
-        });
-    }
-    </script>
+
     
     
     

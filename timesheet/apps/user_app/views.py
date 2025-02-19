@@ -67,6 +67,8 @@ class GerenciarAtividadesView(LoginRequiredMixin, View):
 
     def post(self, request):
         user = request.user
+        
+        # Finaliza a atividade ativa, se existir, antes de registrar uma nova
         handler = FinalizarAtividadesHandler(user)
         atividade_ativa = handler.finalizar_atividades_ativas()
         if atividade_ativa:
@@ -74,6 +76,7 @@ class GerenciarAtividadesView(LoginRequiredMixin, View):
                 request,
                 f'A atividade ativa foi finalizada em {atividade_ativa.RAM_dataFinal.strftime("%d/%m/%Y %H:%M:%S")}'
             )
+
         form = RegistroAtividadeForm(request.POST)
         if form.is_valid():
             atividade = form.save(commit=False)
