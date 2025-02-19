@@ -141,7 +141,7 @@
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="7" style="text-align: right; font-weight: bold;">Total de Horas:</td>
+                <td colspan="6" style="text-align: right; font-weight: bold;">Total de Horas:</td>
                 <td>{{ total_duracao }}</td>
             </tr>
         </tfoot>
@@ -201,99 +201,103 @@
 </script>
 
 
-
 <script>
-        var table;
+$(document).ready(function(){
+    // Captura o conteúdo original do tfoot
+    var originalFooter = $('.activity-table tfoot').html();
+    
+    var table;
     if (! $.fn.DataTable.isDataTable('.activity-table')) {
-    table = $('.activity-table').DataTable({
+      table = $('.activity-table').DataTable({
         order: [[7, 'asc'], [4, 'asc']],
         columnDefs: [
-        { targets: 7, visible: false, searchable: false }
+          { targets: 7, visible: false, searchable: false }
         ],
         searching: false,
         paging: false,
         language: {
-        url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Portuguese-Brasil.json"
+          url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Portuguese-Brasil.json"
+        },
+        // Restaura o tfoot após cada redraw
+        drawCallback: function(settings) {
+          $('.activity-table tfoot').html(originalFooter);
         }
-    });
+      });
     } else {
-    table = $('.activity-table').DataTable();
+      table = $('.activity-table').DataTable();
     }
-      // Inicia a atualização da duração das atividades abertas
-      iniciarContagem();
-      // Verifica periodicamente se há atividades finalizadas e atualiza seus valores
-      verificarFinalizacao();
-    
-      function iniciarContagem() {
-        // Percorre cada linha do DataTable
-        table.rows().every(function (rowIdx) {
-          var data = this.data();
-          // Verifica: se não houver Data Inicial ou se já houver Data Final (diferente de "Atividade Ativa"), ignora
-          if (!data[4] || (data[5] && data[5] !== "Atividade Ativa")) return;
-          
-          // Converte a Data Inicial (esperando o formato "dd/mm/YYYY HH:mm:ss")
-          var partes = data[4].split(" ");
-          if (partes.length < 2) return;
-          var partesDia = partes[0].split("/");
-          if (partesDia.length < 3) return;
-          var dataISO = partesDia[2] + '-' + partesDia[1] + '-' + partesDia[0] + 'T' + partes[1];
-          var horaInicioDate = new Date(dataISO);
-          if (isNaN(horaInicioDate.getTime())) {
-            console.error("Erro ao converter a data:", data[4]);
-            return;
-          }
-          
-          // Cria um intervalo para atualizar a duração dessa linha a cada segundo
-          setInterval(function () {
-            // Re-obtem os dados atuais para checar se a atividade continua aberta
-            var currentData = table.row(rowIdx).data();
-            if (currentData[5] && currentData[5] !== "Atividade Ativa") return;
-            var agora = new Date();
-            var diff = agora - horaInicioDate;
-            var diffSeconds = Math.floor(diff / 1000);
-            var diffMinutes = Math.floor(diffSeconds / 60);
-            var diffHours = Math.floor(diffMinutes / 60);
-            var remainingMinutes = diffMinutes % 60;
-            var remainingSeconds = diffSeconds % 60;
-            var formattedTime = String(diffHours).padStart(2, '0') + ':' +
-                                String(remainingMinutes).padStart(2, '0') + ':' +
-                                String(remainingSeconds).padStart(2, '0');
-            // Atualiza a coluna "Duração" (índice 6) para essa linha
-            currentData[6] = formattedTime;
-            table.row(rowIdx).data(currentData);
-          }, 1000);
-        });
-      }
-    
-      function verificarFinalizacao() {
+  
+    iniciarContagem();
+    verificarFinalizacao();
+  
+    function iniciarContagem() {
+      table.rows().every(function(rowIdx) {
+        var data = this.data();
+        // Se não houver Data Inicial ou se já houver Data Final (diferente de "Atividade Ativa"), ignora essa linha
+        if (!data[4] || (data[5] && data[5] !== "Atividade Ativa")) return;
+        
+        var partes = data[4].split(" ");
+        if (partes.length < 2) return;
+        var partesDia = partes[0].split("/");
+        if (partesDia.length < 3) return;
+        var dataISO = partesDia[2] + '-' + partesDia[1] + '-' + partesDia[0] + 'T' + partes[1];
+        var horaInicioDate = new Date(dataISO);
+        if (isNaN(horaInicioDate.getTime())) {
+          console.error("Erro ao converter a data:", data[4]);
+          return;
+        }
+        
         setInterval(function () {
-          // Faz um fetch da mesma página para buscar dados atualizados (HTML)
-          fetch(window.location.href, { method: 'GET' })
-            .then(response => response.text())
-            .then(html => {
-              const parser = new DOMParser();
-              const newDocument = parser.parseFromString(html, 'text/html');
-              const newRows = newDocument.querySelectorAll('.activity-table tbody tr');
-              // Para cada linha do DataTable, atualiza as colunas "Data Final" (índice 5) e "Duração" (índice 6)
-              table.rows().every(function (rowIdx) {
-                let newRow = newRows[rowIdx];
-                if (newRow) {
-                  const novoFinal = newRow.children[5].innerText.trim();
-                  if (novoFinal && novoFinal !== "Atividade Ativa") {
-                    var currentData = this.data();
-                    currentData[5] = novoFinal;
-                    currentData[6] = newRow.children[6].innerText.trim();
-                    this.data(currentData);
-                  }
+          var currentData = table.row(rowIdx).data();
+          // Se a atividade foi finalizada, não atualiza
+          if (currentData[5] && currentData[5] !== "Atividade Ativa") return;
+          
+          var agora = new Date();
+          var diff = agora - horaInicioDate;
+          var diffSeconds = Math.floor(diff / 1000);
+          var diffMinutes = Math.floor(diffSeconds / 60);
+          var diffHours = Math.floor(diffMinutes / 60);
+          var remainingMinutes = diffMinutes % 60;
+          var remainingSeconds = diffSeconds % 60;
+          var formattedTime = 
+              String(diffHours).padStart(2, '0') + ':' +
+              String(remainingMinutes).padStart(2, '0') + ':' +
+              String(remainingSeconds).padStart(2, '0');
+          
+          currentData[6] = formattedTime;
+          table.row(rowIdx).data(currentData);
+        }, 1000);
+      });
+    }
+  
+    function verificarFinalizacao() {
+      setInterval(function () {
+        fetch(window.location.href, { method: 'GET' })
+          .then(response => response.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const newDocument = parser.parseFromString(html, 'text/html');
+            const newRows = newDocument.querySelectorAll('.activity-table tbody tr');
+            
+            table.rows().every(function (rowIdx) {
+              let newRow = newRows[rowIdx];
+              if (newRow) {
+                const novoFinal = newRow.children[5].innerText.trim();
+                if (novoFinal && novoFinal !== "Atividade Ativa") {
+                  var currentData = this.data();
+                  currentData[5] = novoFinal;
+                  currentData[6] = newRow.children[6].innerText.trim();
+                  this.data(currentData);
                 }
-              });
-              // Redesenha a tabela sem reinicializar (preserva a ordenação)
-              table.draw(false);
-            })
-            .catch(error => console.error('Erro ao buscar atualizações:', error));
-        }, 5000);
-      }  
-    </script>
+              }
+            });
+            table.draw(false);
+          })
+          .catch(error => console.error('Erro ao buscar atualizações:', error));
+      }, 5000);
+    }
+  });
+</script>
     
    
 <!--Lógica Cliente > Serviço > Atividade-->
