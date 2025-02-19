@@ -40,19 +40,21 @@
                             <option value="{{ atividade.id }}">{{ atividade.nome }}</option>
                         {% endfor %}
                     </select>
-                                        
-                    {% for atividade in page_obj %}
-                    {% if atividade.RAM_ativo %}
-                        <button 
-                            class="btn-finalizar-atividade" 
-                            data-id="{{ atividade.id }}" 
-                            onclick="finalizarAtividadePorElemento(this)">
-                            Finalizar Atividade
-                        </button>
-                    {% endif %}
-                {% endfor %}
+
                     <button class="botao-add-form" type="submit">Registrar Atividade</button>
                 </form>
+                                                        
+                {% for atividade in page_obj %}
+                {% if atividade.RAM_ativo %}
+                    <button 
+                        class="btn-finalizar-atividade" 
+                        data-id="{{ atividade.id }}" 
+                        onclick="finalizarAtividadePorElemento(this)">
+                        Finalizar Atividade
+                    </button>
+                {% endif %}
+            {% endfor %}
+            
             </div>
         </tr>
         <tr>
