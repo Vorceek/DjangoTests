@@ -14,11 +14,11 @@
         <ul class="aside-ul-content">
             {% for icon in aside_icons %}
             {% if icon.is_admin and is_admin %}
-                 <li><a href="{{ icon.link }}"><i class="{{ icon.icon_class }}"></i></a></li>
+                 <li><a href="{{ icon.link }}"><i data-feather="{{ icon.icon_name }}" class="left-icons"></i></a></li>
             {% elif icon.is_user and is_user %}
-                 <li><a href="{{ icon.link }}"><i class="{{ icon.icon_class }}"></i></a></li>
+                 <li><a href="{{ icon.link }}"><i data-feather="{{ icon.icon_name }}" class="left-icons"></i></a></li>
             {% elif not icon.is_admin and not icon.is_user %}
-                 <li><a href="{{ icon.link }}"><i class="{{ icon.icon_class }}"></i></a></li>
+                 <li><a href="{{ icon.link }}"><i data-feather="{{ icon.icon_name }}" class="left-icons"></i></a></li>
             {% endif %}
             {% endfor %}
         </ul>

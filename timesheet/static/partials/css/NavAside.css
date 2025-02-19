@@ -52,7 +52,7 @@ nav {
     align-items: center;
     list-style-type: none;
     font-size: 12px;
-    gap: 35px;
+    gap: 15px;
 }
 
 .div-user-nav h1 {
@@ -62,8 +62,18 @@ nav {
 #exit-menu {
     display: flex;
     justify-content: center;
-    font-size: 30px;
+    width: 35px!important;
+    height: 35px!important;
+    padding: 0;
     color: #1f293f;
+    cursor: pointer;
+}
+
+.left-icons {
+    width: 35px!important;
+    height: 35px!important;
+    color: #ffff;
+    padding-top: 15px;
 }
 
 #btn-sair {

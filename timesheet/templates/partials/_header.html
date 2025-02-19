@@ -25,7 +25,7 @@
                     <form action="{% url 'logout' %}" method="get" style="display: inline;">
                         {% csrf_token %}
                         <button type="submit" id="btn-sair">
-                            <i class="fa-solid fa-right-from-bracket" id="exit-menu"></i>
+                            <i data-feather="log-out" id="exit-menu"></i>
                         </button>
                     </form>
 
