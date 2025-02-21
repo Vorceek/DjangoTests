@@ -1,9 +1,14 @@
+from django.db.models.functions import ExtractWeekDay
 from django.shortcuts import get_object_or_404, render, redirect
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.utils.timezone import now
 from django.views import View
+
+from django.contrib.auth.mixins import LoginRequiredMixin
+from apps.base_app.permissions import BaseDataMixin
+from apps.base_app.permissions import PaginationMixin
 
 from .models import RegistroAtividadeModel, Cliente, Servico, Atividade
 from .forms import RegistroAtividadeForm
@@ -12,10 +17,12 @@ from .forms import RegistroAtividadeForm
 # Função para formatar a duração (formato hh:mm:ss)
 # ----------------------
 def formatar_duracao(total_segundos):
+
     horas = int(total_segundos // 3600)
     minutos = int((total_segundos % 3600) // 60)
     segundos = int(total_segundos % 60)
-    return f"{horas:02d}:{minutos:02d}:{segundos:02d}"
+
+    return f"{horas}:{minutos:02d}:{segundos:02d}"
 
 # ----------------------
 # Pegar o Grupo do Usuário
@@ -23,6 +30,7 @@ def formatar_duracao(total_segundos):
 def get_user_groups(user):
     """Retorna os grupos do usuário, excluindo ADMINISTRADOR e USER."""
     return user.groups.exclude(name__in=['ADMINISTRADOR', 'USER'])
+
 
 # ----------------------
 # Endpoints AJAX
@@ -79,6 +87,23 @@ class FinalizarAtividadesHandler:
             return atividade_ativa
         return None
 
+
+# ----------------------
+# Get Atividades por Dia
+# ----------------------
+def get_atividades_por_dia_data(setores_dinamicos, data_inicio, data_fim):
+    qs = RegistroAtividadeModel.objects.filter(
+        RAM_colaborador__groups__name__in=setores_dinamicos,
+        RAM_dataInicial__date__gte=data_inicio,
+        RAM_dataInicial__date__lte=data_fim
+    ).annotate(dia_semana=ExtractWeekDay("RAM_dataInicial")).values("dia_semana")
+    atividades_count = {i: 0 for i in range(1, 8)}
+    for item in qs:
+        dia = item["dia_semana"]
+        if dia in atividades_count:
+            atividades_count[dia] += 1
+    return [atividades_count.get(i, 0) for i in range(1, 8)]
+
 # ----------------------
 # Views
 # ----------------------
@@ -105,7 +130,6 @@ class ListarAtividadesView(View):
 
 class RegistrarAtividadeView(View):
     def get(self, request):
-        user = request.user
         # Agora, para filtrar os setores, usamos os grupos do usuário
         setores_usuario = request.user.groups.all()
         clientes = Cliente.objects.filter(setor__in=setores_usuario)
@@ -165,41 +189,16 @@ class FinalizarAtividadeView(View):
         return JsonResponse({'success': False, 'error': 'Método não permitido.'}, status=405)
 
 
-class GerenciarAtividadesView(View):
-    def get_context_data(self, user):
-        # Agora, usamos os grupos do usuário para filtrar os clientes, serviços e atividades
-        setores_usuario = user.groups.all()
-        clientes = Cliente.objects.filter(setor__in=setores_usuario).distinct()
-        servicos = Servico.objects.filter(setor__in=setores_usuario).distinct()
-        atividades = Atividade.objects.filter(setor__in=setores_usuario).distinct()
-        is_admin = user.groups.filter(name='Admin').exists()
-        return {
-            'clientes': clientes,
-            'servicos': servicos,
-            'atividades': atividades,
-            'is_admin': is_admin,
-        }
-
+class GerenciarAtividadesView(LoginRequiredMixin, BaseDataMixin, PaginationMixin, View):
+    
     def calcular_total_duracao(self, atividades_usuario):
+
         total_segundos = sum(
             (a.RAM_dataFinal - a.RAM_dataInicial).total_seconds()
             for a in atividades_usuario if a.RAM_dataFinal and a.RAM_dataInicial
         )
-        return formatar_duracao(total_segundos)
 
-    def get(self, request):
-        user = request.user
-        context = self.get_context_data(user)
-        atividades_usuario = RegistroAtividadeModel.objects.filter(RAM_colaborador=user).order_by('-RAM_dataInicial')
-        paginator = Paginator(atividades_usuario, 9)
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-        context.update({
-            'form': RegistroAtividadeForm(),
-            'page_obj': page_obj,
-            'total_duracao': self.calcular_total_duracao(atividades_usuario),
-        })
-        return render(request, 'home/gerenciar_atividades.html', context)
+        return formatar_duracao(total_segundos)
 
     def post(self, request):
         user = request.user
@@ -215,16 +214,14 @@ class GerenciarAtividadesView(View):
             atividade = form.save(commit=False)
             atividade.RAM_colaborador = user
             atividade.save()
-            return redirect('atividade_app:gerenciar_atividades')
+            return redirect('user_app:home')
         else:
-            context = self.get_context_data(user)
+            # Obtém o queryset de atividades e pagina os resultados usando o mixin
             atividades_usuario = RegistroAtividadeModel.objects.filter(RAM_colaborador=user).order_by('-RAM_dataInicial')
-            paginator = Paginator(atividades_usuario, 9)
-            page_number = request.GET.get('page')
-            page_obj = paginator.get_page(page_number)
-            context.update({
-                'form': form,
-                'page_obj': page_obj,
-                'total_duracao': self.calcular_total_duracao(atividades_usuario),
-            })
-            return render(request, 'home/gerenciar_atividades.html', context)
+            paginated_context = get_atividades_paginadas(self, user)  # Se essa função estiver definida fora, ou use self.get_paginated_context se ela estiver no mixin
+            context = self.get_context_data(
+                form=form,
+                total_duracao=self.calcular_total_duracao(atividades_usuario)
+            )
+            context.update(paginated_context)
+            return render(request, 'user/home.html', context)
