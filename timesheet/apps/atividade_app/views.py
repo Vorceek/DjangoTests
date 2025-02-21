@@ -191,6 +191,14 @@ class FinalizarAtividadeView(View):
 
 class GerenciarAtividadesView(LoginRequiredMixin, BaseDataMixin, PaginationMixin, View):
     
+    def get_atividades_paginadas(self, user):
+
+        atividades_usuario = RegistroAtividadeModel.objects.filter(RAM_colaborador=user).order_by('-RAM_dataInicial')
+        paginator = Paginator(atividades_usuario, 20)
+        page_number = self.request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        return atividades_usuario, page_obj
+
     def calcular_total_duracao(self, atividades_usuario):
 
         total_segundos = sum(
@@ -218,7 +226,7 @@ class GerenciarAtividadesView(LoginRequiredMixin, BaseDataMixin, PaginationMixin
         else:
             # Obtém o queryset de atividades e pagina os resultados usando o mixin
             atividades_usuario = RegistroAtividadeModel.objects.filter(RAM_colaborador=user).order_by('-RAM_dataInicial')
-            paginated_context = get_atividades_paginadas(self, user)  # Se essa função estiver definida fora, ou use self.get_paginated_context se ela estiver no mixin
+            paginated_context = self.get_atividades_paginadas(user)
             context = self.get_context_data(
                 form=form,
                 total_duracao=self.calcular_total_duracao(atividades_usuario)
