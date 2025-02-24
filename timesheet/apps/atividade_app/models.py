@@ -4,7 +4,7 @@ from django.conf import settings
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from apps.base_app.models import Atividade, Cliente, Servico
+from apps.base_app.models import Atividade, Cliente, Servico, Periodo
 
 def hora_atual():
     return datetime.now(ZoneInfo("America/Sao_Paulo"))
@@ -15,6 +15,7 @@ class RegistroAtividadeModel(models.Model):
     RAM_cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     RAM_servico = models.ForeignKey(Servico, on_delete=models.CASCADE)
     RAM_atividade = models.ForeignKey(Atividade, on_delete=models.CASCADE)
+    RAM_periodo = models.ForeignKey(Periodo, on_delete=models.SET_NULL, null=True, blank=True)
     RAM_dataInicial = models.DateTimeField(default=hora_atual, editable=False)
     RAM_dataFinal = models.DateTimeField(null=True, blank=True)
     RAM_duracao = models.DurationField(null=True, blank=True)

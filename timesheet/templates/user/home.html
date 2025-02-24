@@ -19,6 +19,7 @@
                 
                 <form method="POST" class="form-add-user">
                     {% csrf_token %}
+
                     <!-- Campo Cliente -->
                     <select name="RAM_cliente" id="id_cliente">
                         <option value="" disabled selected>Selecione o Cliente</option>
@@ -26,6 +27,7 @@
                             <option value="{{ cliente.id }}">{{ cliente.nome }}</option>
                         {% endfor %}
                     </select>
+
                     <!-- Campo Serviço -->
                     <select name="RAM_servico" id="id_servico">
                         <option value="" disabled selected>Selecione o Serviço</option>
@@ -33,6 +35,7 @@
                             <option value="{{ servico.id }}">{{ servico.nome }}</option>
                         {% endfor %}
                     </select>
+
                     <!-- Campo Atividade -->
                     <select name="RAM_atividade" id="id_atividade">
                         <option value="" disabled selected>Selecione a Atividade</option>
@@ -41,7 +44,18 @@
                         {% endfor %}
                     </select>
 
+                    <!-- Campo Período -->
+                    {% if exibir_periodo %}
+                    <select name="RAM_periodo" id="id_periodo">
+                        <option value="" disabled selected>Selecione o Período</option>
+                        {% for periodo in periodos %}
+                            <option value="{{ periodo.id }}">{{ periodo.nome }}</option>
+                        {% endfor %}
+                        </select>
+                    {% endif %}
+
                     <button class="botao-add-form" type="submit">Registrar Atividade</button>
+
                 </form>
                                                         
                 {% for atividade in page_obj %}
@@ -64,6 +78,9 @@
             <th>Atividade</th>
             <th>Data Inicial</th>
             <th>Data Final</th>
+            {% if exibir_periodo %}
+            <th>Período</th>
+            {% endif %}
             <th>Duração</th>
         </tr>
     </thead>
@@ -83,6 +100,11 @@
             <td id="data_final_{{ atividade.id }}">
                 {{ atividade.RAM_dataFinal|date:"d/m/Y H:i"|default:"Atividade Ativa" }}
             </td>
+            {% if exibir_periodo %}
+            <td id="periodo_{{ periodo.id }}">
+                {{ atividade.RAM_periodo|default:"Sem Período" }}
+            </td>
+            {% endif %}
             <td id="duracao_{{ atividade.id }}">
                 {{ atividade.duracao_formatada }}
             </td>
@@ -95,7 +117,11 @@
     </tbody>
     <tfoot>
         <tr style="background-color: transparent;">
+            {% if exibir_periodo %}
+            <td colspan="6" style="text-align: right; font-weight: bold;">Total de Horas:</td>
+            {% else %}
             <td colspan="5" style="text-align: right; font-weight: bold;">Total de Horas:</td>
+            {% endif %}
             <td>{{ total_duracao }}</td>
         </tr>
     </tfoot>
@@ -152,6 +178,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const clienteSelect = document.getElementById('id_cliente');
     const servicoSelect = document.getElementById('id_servico');
     const atividadeSelect = document.getElementById('id_atividade');
+    const periodoSelect = document.getElementById('id_periodo');
     
     servicoSelect.disabled = true;
     atividadeSelect.disabled = true;

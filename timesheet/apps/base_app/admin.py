@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Atividade, Cliente, Servico
+from .models import Atividade, Cliente, Servico, Periodo
 
 class ClienteAdmin(admin.ModelAdmin):
     class Meta:
@@ -54,7 +54,11 @@ class AtividadeAdmin(admin.ModelAdmin):
         return obj.setor.name if obj.setor else ''  # Se 'setor' for uma ForeignKey
     get_setores.short_description = 'Setores'
 
+class PeriodoAdmin(admin.ModelAdmin):
+    list_display = ('nome',)
+    search_fields = ('nome',)
 
 admin.site.register(Cliente, ClienteAdmin)
 admin.site.register(Servico, ServicoAdmin)
 admin.site.register(Atividade, AtividadeAdmin)
+admin.site.register(Periodo, PeriodoAdmin)

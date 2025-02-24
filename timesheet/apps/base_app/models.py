@@ -1,7 +1,14 @@
+import datetime
 from django.db import models
 from django.contrib.auth.models import Group
 
-# TABELA CLIENTE, SERVIÇO E ATIVIDADE
+# TABELA PERÍODO, CLIENTE, SERVIÇO E ATIVIDADE
+
+class Periodo(models.Model):
+    nome = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.nome
 
 class Cliente(models.Model):
     nome = models.CharField(max_length=50, unique=True)

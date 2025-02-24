@@ -11,6 +11,7 @@ from apps.base_app.permissions import BaseDataMixin
 from apps.atividade_app.models import RegistroAtividadeModel
 from apps.atividade_app.forms import RegistroAtividadeForm
 from apps.atividade_app.views import formatar_duracao
+from apps.base_app.models import Periodo
 
 # Handler para finalizar atividades ativas
 class FinalizarAtividadesHandler:
@@ -56,6 +57,8 @@ class GerenciarAtividadesView(LoginRequiredMixin, BaseDataMixin, View):
             total_duracao=self.calcular_total_duracao(atividades_usuario)
         )
         context.update(aside_icons(self.request))
+        context['exibir_periodo'] = user.groups.filter(name="PERIODO").exists()
+        context['periodos'] = Periodo.objects.all().order_by('nome')
         return render(request, 'user/home.html', context)
 
     def post(self, request):
@@ -84,5 +87,7 @@ class GerenciarAtividadesView(LoginRequiredMixin, BaseDataMixin, View):
                 page_obj=page_obj,
                 total_duracao=self.calcular_total_duracao(atividades_usuario)
             )
-
+            
+            context['exibir_periodo'] = user.groups.filter(name="PERIODO").exists()
+            context['periodos'] = Periodo.objects.all().order_by('nome')
             return render(request, 'user/home.html', context)

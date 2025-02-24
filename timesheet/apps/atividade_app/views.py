@@ -10,7 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from apps.base_app.permissions import BaseDataMixin
 from apps.base_app.permissions import PaginationMixin
 
-from .models import RegistroAtividadeModel, Cliente, Servico, Atividade
+from .models import RegistroAtividadeModel, Cliente, Servico, Atividade, Periodo
 from .forms import RegistroAtividadeForm
 
 # ----------------------
@@ -135,12 +135,14 @@ class RegistrarAtividadeView(View):
         clientes = Cliente.objects.filter(setor__in=setores_usuario)
         servicos = Servico.objects.filter(setor__in=setores_usuario)
         atividades = Atividade.objects.filter(setor__in=setores_usuario)
+        periodo = Periodo.objects.all()
         form = RegistroAtividadeForm()
         return render(request, 'home/registrar_atividade.html', {
             'form': form,
             'clientes': clientes,
             'servicos': servicos,
             'atividades': atividades,
+            'periodos': periodo,
         })
 
     def post(self, request):
