@@ -44,6 +44,8 @@ class AdminView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         fixed_groups = ["ADMINISTRADOR", "USER"]
+        user = self.request.user
+        exibir_periodo = user.groups.filter(name="PERIODO").exists() 
         setores_dinamicos = list(
             self.request.user.groups.exclude(name__in=fixed_groups).values_list('name', flat=True)
         )
@@ -58,6 +60,7 @@ class AdminView(LoginRequiredMixin, TemplateView):
                 "barras_labels": json.dumps([]),
                 "barras_datasets": json.dumps([]),
             })
+            context["exibir_periodo"] = exibir_periodo
             return context
 
         # Dados para gráficos
@@ -287,7 +290,9 @@ class GerarRelatorioView(LoginRequiredMixin, AdminRequiredMixin, View):
             """Retorna os grupos do usuário, excluindo ADMINISTRADOR e USER."""
             return user.groups.exclude(name__in=['ADMINISTRADOR', 'USER'])
 
+        user = request.user
         setores_usuario = get_user_groups(request.user)
+        exibir_periodo = user.groups.filter(name="PERIODO").exists()
 
         atividades = RegistroAtividadeModel.objects.filter(
             RAM_cliente__setor__in=setores_usuario,
@@ -375,6 +380,7 @@ class GerarRelatorioView(LoginRequiredMixin, AdminRequiredMixin, View):
             'cliente_ids': request.GET.getlist('cliente'),
             'servico_ids': request.GET.getlist('servico'),
             'atividadegeral_ids': request.GET.getlist('atividade'),
+            "exibir_periodo": exibir_periodo,
         }
         context.update(aside_icons(request))
         return render(request, 'admin/relatorio.html', context)

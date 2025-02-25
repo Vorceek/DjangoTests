@@ -105,46 +105,58 @@
                 <th>Atividade</th>
                 <th>Data Inicial</th>
                 <th>Data Final</th>
+                {% if exibir_periodo %}
+                    <th>Período</th>
+                {% endif %}
                 <th>Duração</th>
                 <th style="display: none;">Status</th>
             </tr>
-        </thead>
-        <tbody>
-            {% for atividade in atividades %}
-                <tr>
-                    <td>{{ atividade.RAM_colaborador|capfirst }}</td>
-                    <td>{{ atividade.RAM_cliente|capfirst }}</td>
-                    <td>{{ atividade.RAM_servico|capfirst }}</td>
-                    <td>{{ atividade.RAM_atividade|capfirst }}</td>
-                    <td>{{ atividade.RAM_dataInicial|date:"d/m/Y H:i:s" }}</td>
-                    <td>
-                        {% if atividade.RAM_dataFinal %}
-                            {{ atividade.RAM_dataFinal|date:"d/m/Y H:i:s" }}
-                        {% else %}
-                            Atividade Ativa
+            </thead>
+            <tbody>
+                {% for atividade in atividades %}
+                    <tr>
+                        <td>{{ atividade.RAM_colaborador|capfirst }}</td>
+                        <td>{{ atividade.RAM_cliente|capfirst }}</td>
+                        <td>{{ atividade.RAM_servico|capfirst }}</td>
+                        <td>{{ atividade.RAM_atividade|capfirst }}</td>
+                        <td>{{ atividade.RAM_dataInicial|date:"d/m/Y H:i:s" }}</td>
+                        <td>
+                            {% if atividade.RAM_dataFinal %}
+                                {{ atividade.RAM_dataFinal|date:"d/m/Y H:i:s" }}
+                            {% else %}
+                                Atividade Ativa
+                            {% endif %}
+                        </td>
+                        {% if exibir_periodo %}
+                            <td id="periodo_{{ atividade.id }}">
+                                {{ atividade.RAM_periodo|default:"Sem Período" }}
+                            </td>
                         {% endif %}
-                    </td>
-                    <td>{{ atividade.duracao_formatada }}</td>
-                    <td style="display: none;">
-                        {% if atividade.RAM_dataFinal %}
-                            1
-                        {% else %}
-                            0
-                        {% endif %}
-                    </td>
-                </tr>
-            {% empty %}
+                        <td>{{ atividade.duracao_formatada }}</td>
+                        <td style="display: none;">
+                            {% if atividade.RAM_dataFinal %}
+                                1
+                            {% else %}
+                                0
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="{% if exibir_periodo %}8{% else %}7{% endif %}">
+                            Nenhuma atividade encontrada.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
                 <tr>
-                    <td colspan="8">Nenhuma atividade encontrada.</td>
+                    <td colspan="{% if exibir_periodo %}7{% else %}6{% endif %}" style="text-align: right; font-weight: bold;">
+                        Total de Horas:
+                    </td>
+                    <td>{{ total_duracao }}</td>
                 </tr>
-            {% endfor %}
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="6" style="text-align: right; font-weight: bold;">Total de Horas:</td>
-                <td>{{ total_duracao }}</td>
-            </tr>
-        </tfoot>
+            </tfoot>
     </table>
     
     <div class="pagination">
@@ -203,32 +215,29 @@
 
 <script>
 $(document).ready(function(){
-    // Captura o conteúdo original do tfoot
-    var originalFooter = $('.activity-table tfoot').html();
-    
+    var totalColumns = $('.activity-table thead tr th').length;
+    var statusColumnIndex = totalColumns - 1; // Última coluna oculta
+
     var table;
-    if (! $.fn.DataTable.isDataTable('.activity-table')) {
-      table = $('.activity-table').DataTable({
-        order: [[7, 'asc'], [4, 'asc']],
-        columnDefs: [
-          { targets: 7, visible: false, searchable: false }
-        ],
-        searching: false,
-        paging: false,
-        language: {
-          url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Portuguese-Brasil.json"
-        },
-        // Restaura o tfoot após cada redraw
-        drawCallback: function(settings) {
-          $('.activity-table tfoot').html(originalFooter);
-        }
-      });
+    if (!$.fn.DataTable.isDataTable('.activity-table')) {
+        table = $('.activity-table').DataTable({
+            order: [[totalColumns - 2, 'asc'], [4, 'asc']],
+            columnDefs: [
+                { targets: statusColumnIndex, visible: false, searchable: false }
+            ],
+            searching: false,
+            paging: false,
+            language: {
+                url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Portuguese-Brasil.json"
+            }
+        });
     } else {
-      table = $('.activity-table').DataTable();
+        table = $('.activity-table').DataTable();
     }
-  
+
     iniciarContagem();
     verificarFinalizacao();
+});
   
     function iniciarContagem() {
       table.rows().every(function(rowIdx) {
