@@ -250,52 +250,64 @@
         }
       
         function iniciarContagem() {
-            table.rows().every(function(rowIdx) {
-                var data = this.data();
-                // Calcula os índices de acordo com a presença da coluna Período
-                var hasPeriodo = exibirPeriodo();
-                var indexDataInicial = hasPeriodo ? 4 : 3;
-                var indexDataFinal = hasPeriodo ? 5 : 4;
-                var indexDuracao = hasPeriodo ? 7 : 6;
-      
-                var dataInicial = data[indexDataInicial];
-                var dataFinal = data[indexDataFinal];
-                var duracaoCell = $(this.node()).find('td').eq(indexDuracao);
-      
-                // Se não houver Data Inicial ou se já houver Data Final diferente de "Atividade Ativa", ignora
-                if (!dataInicial || (dataFinal && dataFinal !== "Atividade Ativa")) return;
-      
-                // Converte a data inicial (assumindo o formato "d/m/Y H:i:s")
-                var partes = dataInicial.split(" ");
+            const rows = document.querySelectorAll(".activity-table tbody tr");
+
+            if (rows.length === 0) return; // Evita erro caso não haja atividades
+
+            // Captura os cabeçalhos das colunas e mapeia os índices corretamente
+            const headers = Array.from(document.querySelectorAll(".activity-table thead th")).map(th => th.innerText.trim());
+
+            const indexDataInicial = headers.indexOf("Data Inicial");
+            const indexDataFinal = headers.indexOf("Data Final");
+            const indexDuracao = headers.indexOf("Duração");
+
+            if (indexDataInicial === -1 || indexDataFinal === -1 || indexDuracao === -1) {
+                console.error("Erro: Índices das colunas não encontrados.");
+                return;
+            }
+
+            rows.forEach(function(row) {
+                const colunas = row.children;
+                
+                let dataInicial = colunas[indexDataInicial]?.innerText.trim();
+                let dataFinal = colunas[indexDataFinal]?.innerText.trim();
+                let duracaoElement = colunas[indexDuracao];
+
+                if (!dataInicial || dataFinal !== "Atividade Ativa") {
+                    return; // Pula atividades já finalizadas
+                }
+
+                const partes = dataInicial.split(" ");
                 if (partes.length < 2) return;
-                var partesDia = partes[0].split("/");
+                const partesDia = partes[0].split("/");
                 if (partesDia.length < 3) return;
-                var dataISO = partesDia[2] + '-' + partesDia[1] + '-' + partesDia[0] + 'T' + partes[1];
-                var horaInicioDate = new Date(dataISO);
-      
+                const dataISO = partesDia[2] + '-' + partesDia[1] + '-' + partesDia[0] + 'T' + partes[1];
+                const horaInicioDate = new Date(dataISO);
+
                 if (isNaN(horaInicioDate.getTime())) {
                     console.error("Erro ao converter a data:", dataInicial);
                     return;
                 }
-      
-                setInterval(function(){
-                    var agora = new Date();
-                    var diff = agora - horaInicioDate;
-                    var diffSeconds = Math.floor(diff / 1000);
-                    var diffMinutes = Math.floor(diffSeconds / 60);
-                    var diffHours = Math.floor(diffMinutes / 60);
-                    var remMinutes = diffMinutes % 60;
-                    var remSeconds = diffSeconds % 60;
-      
-                    var formattedTime = 
+
+                setInterval(function () {
+                    let agora = new Date();
+                    let diff = agora - horaInicioDate;
+                    let diffSeconds = Math.floor(diff / 1000);
+                    let diffMinutes = Math.floor(diffSeconds / 60);
+                    let diffHours = Math.floor(diffMinutes / 60);
+                    let remainingMinutes = diffMinutes % 60;
+                    let remainingSeconds = diffSeconds % 60;
+
+                    let formattedTime = 
                         String(diffHours).padStart(2, '0') + ':' +
-                        String(remMinutes).padStart(2, '0') + ':' +
-                        String(remSeconds).padStart(2, '0');
-      
-                    duracaoCell.text(formattedTime);
+                        String(remainingMinutes).padStart(2, '0') + ':' +
+                        String(remainingSeconds).padStart(2, '0');
+
+                    duracaoElement.innerText = formattedTime;
                 }, 1000);
             });
         }
+
       
         function verificarFinalizacao() {
             setInterval(function(){
