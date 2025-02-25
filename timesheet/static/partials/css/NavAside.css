@@ -13,8 +13,8 @@ nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #bdccb8;
-    border-bottom: 1px solid rgb(146, 142, 142) ;
+    background-color: #ffff;
+    border-bottom: 1px solid black ;
     padding-bottom: 5px;
     margin-left: auto;
     height: 55px;
@@ -152,6 +152,11 @@ aside ul li {
 #logo-dome {
     padding-top: 12px;
     height: 45px;
+}
+
+.div-menu-left {
+    display: flex;
+    justify-content: center;
 }
 
 /* MAIN */
