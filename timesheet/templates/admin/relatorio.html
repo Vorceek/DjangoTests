@@ -188,20 +188,19 @@
 
 <!--Script SELECT2-->
 
+<!-- Script para inicializar Select2 -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Inicializa o Select2 para cada select
         $('.select2').select2({
             placeholder: "Selecione...",
             allowClear: true,
             width: '100%'
         });
     });
-</script>
-
-<!-- SCRIPT PARA FILTRAR AS OPÇÕES -->
-<script>
-    // Script para manter o scroll
+    </script>
+    
+    <!-- Script para manter o scroll -->
+    <script>
     document.addEventListener("DOMContentLoaded", function() {
         if (sessionStorage.getItem('scrollPosition')) {
             window.scrollTo(0, sessionStorage.getItem('scrollPosition'));
@@ -210,119 +209,133 @@
             sessionStorage.setItem('scrollPosition', window.scrollY);
         };
     });
-</script>
-
-
-<script>
-$(document).ready(function(){
-    var totalColumns = $('.activity-table thead tr th').length;
-    var statusColumnIndex = totalColumns - 1; // Última coluna oculta
-
-    var table;
-    if (!$.fn.DataTable.isDataTable('.activity-table')) {
-        table = $('.activity-table').DataTable({
-            order: [[totalColumns - 2, 'asc'], [4, 'asc']],
-            columnDefs: [
-                { targets: statusColumnIndex, visible: false, searchable: false }
-            ],
-            searching: false,
-            paging: false,
-            language: {
-                url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Portuguese-Brasil.json"
-            }
-        });
-    } else {
-        table = $('.activity-table').DataTable();
-    }
-
-    iniciarContagem();
-    verificarFinalizacao();
-});
-  
-    function iniciarContagem() {
-      table.rows().every(function(rowIdx) {
-        var data = this.data();
-        // Se não houver Data Inicial ou se já houver Data Final (diferente de "Atividade Ativa"), ignora essa linha
-        if (!data[4] || (data[5] && data[5] !== "Atividade Ativa")) return;
-        
-        var partes = data[4].split(" ");
-        if (partes.length < 2) return;
-        var partesDia = partes[0].split("/");
-        if (partesDia.length < 3) return;
-        var dataISO = partesDia[2] + '-' + partesDia[1] + '-' + partesDia[0] + 'T' + partes[1];
-        var horaInicioDate = new Date(dataISO);
-        if (isNaN(horaInicioDate.getTime())) {
-          console.error("Erro ao converter a data:", data[4]);
-          return;
-        }
-        
-        setInterval(function () {
-          var currentData = table.row(rowIdx).data();
-          // Se a atividade foi finalizada, não atualiza
-          if (currentData[5] && currentData[5] !== "Atividade Ativa") return;
-          
-          var agora = new Date();
-          var diff = agora - horaInicioDate;
-          var diffSeconds = Math.floor(diff / 1000);
-          var diffMinutes = Math.floor(diffSeconds / 60);
-          var diffHours = Math.floor(diffMinutes / 60);
-          var remainingMinutes = diffMinutes % 60;
-          var remainingSeconds = diffSeconds % 60;
-          var formattedTime = 
-              String(diffHours).padStart(2, '0') + ':' +
-              String(remainingMinutes).padStart(2, '0') + ':' +
-              String(remainingSeconds).padStart(2, '0');
-          
-          currentData[6] = formattedTime;
-          table.row(rowIdx).data(currentData);
-        }, 1000);
-      });
-    }
-  
-    function verificarFinalizacao() {
-      setInterval(function () {
-        fetch(window.location.href, { method: 'GET' })
-          .then(response => response.text())
-          .then(html => {
-            const parser = new DOMParser();
-            const newDocument = parser.parseFromString(html, 'text/html');
-            const newRows = newDocument.querySelectorAll('.activity-table tbody tr');
-            
-            table.rows().every(function (rowIdx) {
-              let newRow = newRows[rowIdx];
-              if (newRow) {
-                const novoFinal = newRow.children[5].innerText.trim();
-                if (novoFinal && novoFinal !== "Atividade Ativa") {
-                  var currentData = this.data();
-                  currentData[5] = novoFinal;
-                  currentData[6] = newRow.children[6].innerText.trim();
-                  this.data(currentData);
-                }
-              }
-            });
-            table.draw(false);
-          })
-          .catch(error => console.error('Erro ao buscar atualizações:', error));
-      }, 5000);
-    }
-  });
-</script>
+    </script>
     
-   
-<!--Lógica Cliente > Serviço > Atividade-->
-
-<script>
+    <!-- Script para DataTables e atualização automática da duração -->
+    <script>
+    $(document).ready(function(){
+        // Captura o conteúdo original do tfoot para restaurá-lo após redraw
+        var originalFooter = $('.activity-table tfoot').html();
+        
+        var totalColumns = $('.activity-table thead tr th').length;
+        var statusColumnIndex = totalColumns - 1; // última coluna oculta (status)
+        
+        var table;
+        if (!$.fn.DataTable.isDataTable('.activity-table')) {
+            table = $('.activity-table').DataTable({
+                order: [[ totalColumns - 2, 'asc' ], [ exibirPeriodo() ? 4 : 3, 'asc' ]],
+                columnDefs: [
+                    { targets: statusColumnIndex, visible: false, searchable: false }
+                ],
+                searching: false,
+                paging: false,
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Portuguese-Brasil.json"
+                },
+                drawCallback: function(settings) {
+                    $('.activity-table tfoot').html(originalFooter);
+                }
+            });
+        } else {
+            table = $('.activity-table').DataTable();
+        }
+      
+        iniciarContagem();
+        verificarFinalizacao();
+      
+        function exibirPeriodo(){
+            // Retorna true se o cabeçalho contiver "Período" na posição correta.
+            // Supondo que se "exibir_periodo" estiver ativo, a 7ª coluna é "Período"
+            return $('th').filter(function(){ return $(this).text().trim() === "Período"; }).length > 0;
+        }
+      
+        function iniciarContagem() {
+            table.rows().every(function(rowIdx) {
+                var data = this.data();
+                // Calcula os índices de acordo com a presença da coluna Período
+                var hasPeriodo = exibirPeriodo();
+                var indexDataInicial = hasPeriodo ? 4 : 3;
+                var indexDataFinal = hasPeriodo ? 5 : 4;
+                var indexDuracao = hasPeriodo ? 7 : 6;
+      
+                var dataInicial = data[indexDataInicial];
+                var dataFinal = data[indexDataFinal];
+                var duracaoCell = $(this.node()).find('td').eq(indexDuracao);
+      
+                // Se não houver Data Inicial ou se já houver Data Final diferente de "Atividade Ativa", ignora
+                if (!dataInicial || (dataFinal && dataFinal !== "Atividade Ativa")) return;
+      
+                // Converte a data inicial (assumindo o formato "d/m/Y H:i:s")
+                var partes = dataInicial.split(" ");
+                if (partes.length < 2) return;
+                var partesDia = partes[0].split("/");
+                if (partesDia.length < 3) return;
+                var dataISO = partesDia[2] + '-' + partesDia[1] + '-' + partesDia[0] + 'T' + partes[1];
+                var horaInicioDate = new Date(dataISO);
+      
+                if (isNaN(horaInicioDate.getTime())) {
+                    console.error("Erro ao converter a data:", dataInicial);
+                    return;
+                }
+      
+                setInterval(function(){
+                    var agora = new Date();
+                    var diff = agora - horaInicioDate;
+                    var diffSeconds = Math.floor(diff / 1000);
+                    var diffMinutes = Math.floor(diffSeconds / 60);
+                    var diffHours = Math.floor(diffMinutes / 60);
+                    var remMinutes = diffMinutes % 60;
+                    var remSeconds = diffSeconds % 60;
+      
+                    var formattedTime = 
+                        String(diffHours).padStart(2, '0') + ':' +
+                        String(remMinutes).padStart(2, '0') + ':' +
+                        String(remSeconds).padStart(2, '0');
+      
+                    duracaoCell.text(formattedTime);
+                }, 1000);
+            });
+        }
+      
+        function verificarFinalizacao() {
+            setInterval(function(){
+                fetch(window.location.href, { method: 'GET' })
+                .then(response => response.text())
+                .then(html => {
+                    var parser = new DOMParser();
+                    var newDoc = parser.parseFromString(html, 'text/html');
+                    var newRows = newDoc.querySelectorAll('.activity-table tbody tr');
+      
+                    table.rows().every(function(rowIdx) {
+                        var newRow = newRows[rowIdx];
+                        if(newRow) {
+                            var novoFinal = newRow.children[ exibirPeriodo() ? 5 : 4 ].innerText.trim();
+                            if(novoFinal && novoFinal !== "Atividade Ativa") {
+                                var currentData = this.data();
+                                currentData[ exibirPeriodo() ? 5 : 4 ] = novoFinal;
+                                currentData[ exibirPeriodo() ? 6 : 5 ] = newRow.children[ exibirPeriodo() ? 6 : 5 ].innerText.trim();
+                                this.data(currentData);
+                            }
+                        }
+                    });
+                    table.draw(false);
+                })
+                .catch(error => console.error('Erro ao buscar atualizações:', error));
+            }, 5000);
+        }
+    });
+    </script>
+    
+    <!-- Lógica Cliente > Serviço > Atividade (Select2) -->
+    <script>
     $(document).ready(function() {
-        // Pega os selects como jQuery objects
         var $cliente    = $("#cliente"),
             $servico    = $("#servico"),
             $atividade  = $("#atividade");
-    
-        // Guarda as opções originais
+        
         var originalServicos   = $servico.html();
         var originalAtividades = $atividade.html();
-    
-        // Função para reinicializar o Select2 em um elemento
+        
         function refreshSelect2($el, placeholder) {
             $el.select2('destroy');
             $el.select2({
@@ -331,18 +344,13 @@ $(document).ready(function(){
                 width: '100%'
             });
         }
-    
-        // Inicializa os três selects
+        
         refreshSelect2($cliente, "Selecione...");
         refreshSelect2($servico, "Selecione o Serviço");
         refreshSelect2($atividade, "Selecione a Atividade");
-    
-        // Quando o cliente mudar
+        
         $cliente.on('change', function() {
             var selectedClienteIds = $(this).val();
-            console.log("Cliente(s) selecionado(s):", selectedClienteIds);
-            
-            // Se nenhum cliente estiver selecionado, restaura os serviços e atividades originais
             if (!selectedClienteIds || selectedClienteIds.length === 0) {
                 $servico.html(originalServicos);
                 $atividade.html(originalAtividades);
@@ -350,12 +358,10 @@ $(document).ready(function(){
                 refreshSelect2($atividade, "Selecione a Atividade");
                 return;
             }
-    
-            // Se tiver seleção, busca os serviços filtrados
+        
             var query = new URLSearchParams({ 'cliente_ids': selectedClienteIds.join(',') });
-            var url   = "/atividade/get_servicos_por_cliente/?" + query.toString();
-            console.log("Buscando serviços em:", url);
-            
+            var url = "/atividade/get_servicos_por_cliente/?" + query.toString();
+        
             $.getJSON(url, function(data) {
                 var options = '<option value="">Selecione o Serviço</option>';
                 if (data.servicos && data.servicos.length > 0) {
@@ -369,28 +375,22 @@ $(document).ready(function(){
                 }
                 $servico.html(options);
                 refreshSelect2($servico, "Selecione o Serviço");
-                // Restaura atividades originais já que a seleção de serviço mudou
                 $atividade.html(originalAtividades);
                 refreshSelect2($atividade, "Selecione a Atividade");
             });
         });
-    
-        // Quando o serviço mudar
+        
         $servico.on('change', function() {
             var selectedServicoIds = $(this).val();
-            console.log("Serviço(s) selecionado(s):", selectedServicoIds);
-            
-            // Se nenhum serviço estiver selecionado, restaura as atividades originais
             if (!selectedServicoIds || selectedServicoIds.length === 0) {
                 $atividade.html(originalAtividades);
                 refreshSelect2($atividade, "Selecione a Atividade");
                 return;
             }
-    
+        
             var query = new URLSearchParams({ 'servico_ids': selectedServicoIds.join(',') });
-            var url   = "/atividade/get_atividades_por_servico/?" + query.toString();
-            console.log("Buscando atividades em:", url);
-    
+            var url = "/atividade/get_atividades_por_servico/?" + query.toString();
+        
             $.getJSON(url, function(data) {
                 var options = '<option value="">Selecione a Atividade</option>';
                 if (data.atividades && data.atividades.length > 0) {
