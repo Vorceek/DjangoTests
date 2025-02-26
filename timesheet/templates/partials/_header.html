@@ -9,7 +9,16 @@
 
         <div class="div-nav-left">
             <div class="div-menu-left">
+                {% if is_admin %}
+                <a href="{% url 'admin_app:hub' %}">
+              {% elif is_user %}
+                <a href="{% url 'user_app:home' %}">
+              {% else %}
+                <a href="#">
+              {% endif %}
                 <img src="{% static 'partials/img/logo-ja-fiz.png' %}" alt="Timesheet" style="height: 50px;">
+              </a>
+                
             </div>   
         </div>
 

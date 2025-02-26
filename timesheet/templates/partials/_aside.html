@@ -1,15 +1,15 @@
 {% load static %}
 
 <aside>
-    {% if is_admin %}
-      <a href="{% url 'admin_app:hub' %}">
-    {% elif is_user %}
-      <a href="{% url 'user_app:home' %}">
-    {% else %}
-      <a href="#">
-    {% endif %}
-        <img src="{% static 'partials/img/Branca.svg' %}" alt="o-dome" id="logo-dome">
-    </a>
+  {% if is_admin %}
+  <a href="{% url 'admin_app:hub' %}">
+{% elif is_user %}
+  <a href="{% url 'user_app:home' %}">
+{% else %}
+  <a href="#">
+{% endif %}
+ <!--    <img src="{% static 'partials/img/Branca.svg' %}" alt="o-dome" id="logo-dome">-->
+</a>
     <div class="aside-content">
         <ul class="aside-ul-content">
             {% for icon in aside_icons %}

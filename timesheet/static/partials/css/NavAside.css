@@ -17,15 +17,14 @@ nav {
     border-bottom: 1px solid black ;
     padding-bottom: 5px;
     margin-left: auto;
-    height: 55px;
-    width: 95%;
+    height: 40px;
+    width: 96%;
     z-index: 1;
 }
 
 /* Nav Esquerdo */
 
 .div-nav-left {
-    margin-left: 15px;
     align-items: center;
 }
 
@@ -102,9 +101,10 @@ aside {
 
     top: 0;
     left: 0;
-    width: 5%;
+    width: 4%;
     height: 100vh;
-    background-color: #1f293f;
+    background-color: #000;
+    border-right: 1px solid #ffff ;
 
     position: fixed;
     z-index: 2;
@@ -146,7 +146,7 @@ aside ul li {
     list-style-type: none;
     margin: 0;
     padding: 0;
-    margin-bottom: 700px;
+    margin-bottom: 900px;
 }
 
 #logo-dome {
