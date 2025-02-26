@@ -136,9 +136,20 @@ table.dataTable tbody tr:nth-child(even) {
 input[type="text"],
 input[type="date"],
 select {
-    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    padding-bottom: 5px;
+    padding-right: 5px;
+    min-height: 32px!important;
+    box-sizing: border-box;
+    border: 1px solid #aaa!important;
+    font-size: 100%;
+    font-family: sans-serif;
+    overflow: hidden;
+    word-break: keep-all;
     border: 1px solid #555;
-    border-radius: 5px;
+    border-radius: 4px;
     background-color: white;
     color: #303030;
 }
@@ -206,6 +217,7 @@ button:hover {
     margin-top: 20px;
     margin-bottom: 20px;
 }
+
 
 /* Paginação */
 .pagination {
