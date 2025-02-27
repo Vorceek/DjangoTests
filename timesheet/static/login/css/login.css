@@ -35,15 +35,19 @@ body {
 .login-form {
     flex: 1;
     padding: 30px;
-    background-color: #f4f4f4; /* Cor de fundo para o formulário */
+    background-color: #63ED0F; /* Cor de fundo para o formulário */
 }
 
 .login-form h2 {
     margin-bottom: 25px;
     font-size: 22px;
     font-weight: 700;
-    color: #1f293f;
+    color: #ffff; /* #1f293f */
     text-align: center;
+}
+
+.login-form h2:hover {
+    color: #ececec; /* #1f293f */
 }
 
 .login-form input {
@@ -71,12 +75,12 @@ body {
     align-items: center;
     white-space: nowrap;
     font-size: 12px;
-    color: #2e3c89;
+    color: #ffffff;
 }
 
 .forgot-password {
     font-size: 12px;
-    color: #2e3c89;
+    color: #ffffff;
     text-decoration: none;
     margin-left: 20px; /* Ajuste da margem para alinhar com a checkbox */
 }
