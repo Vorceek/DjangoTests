@@ -1,8 +1,6 @@
 body {
-    background: url('https://domeconsultoria.com.br/wp-content/uploads/2024/03/bg-home-min.jpg') no-repeat center center fixed;
-    background-size: cover;
     display: flex;
-    justify-content: center;
+    background-color: #ffffff;
     align-items: center;
     height: 100vh;
     margin: 0;
@@ -11,47 +9,46 @@ body {
 
 .login-container {
     display: flex;
-    background-color: #ffffff; /* Cor de fundo unificada para o container */
-    border-radius: 10px;
-    overflow: hidden;
-    width: 500px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-.login-logo {
-    background-color: #000; /* Mantém a cor de fundo para o logo */
-    display: flex;
     justify-content: center;
     align-items: center;
-    width: 150px;
-    padding: 20px;
-}
-
-.login-logo img {
-    max-width: 200px;
-    height: auto;
+    overflow: hidden;
+    width: 600px;
+    height: 100%;
+    padding: 10px;
+    background-color: #ffff;
+    border-right: 1px solid #333333;
 }
 
 .login-form {
-    flex: 1;
-    padding: 30px;
-    background-color: #63ED0F; /* Cor de fundo para o formulário */
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    border: 1px solid #ffffff;
+    height: 250px;
+    padding: 20px;
+}
+
+.login-form form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .login-form h2 {
     margin-bottom: 25px;
     font-size: 22px;
     font-weight: 700;
-    color: #ffff; /* #1f293f */
+    color: #000000; /* #1f293f */
     text-align: center;
 }
 
 .login-form h2:hover {
-    color: #ececec; /* #1f293f */
+    color: #333333;; /* #1f293f */
 }
 
 .login-form input {
-    width: 100%;
+    width: 300px;
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #ccc;
@@ -63,7 +60,8 @@ body {
 
 .options {
     display: flex;
-    justify-content: space-between;
+    width: 100%;
+    justify-content: space-around;
     text-align: justify;
     align-items: center;
     margin-top: 20px;
@@ -75,12 +73,12 @@ body {
     align-items: center;
     white-space: nowrap;
     font-size: 12px;
-    color: #ffffff;
+    color: #000;
 }
 
 .forgot-password {
     font-size: 12px;
-    color: #ffffff;
+    color: #000000;
     text-decoration: none;
     margin-left: 20px; /* Ajuste da margem para alinhar com a checkbox */
 }
@@ -90,7 +88,7 @@ body {
 }
 
 .login-form button {
-    width: 100%;
+    width: 300px;
     padding: 12px;
     background-color: #000; /* Cor de fundo unificada para o botão */
     border: none;
@@ -111,4 +109,10 @@ body {
     justify-content: center;
     align-items: center;
     margin-top: 10px;
+}
+
+.logo-ja-fiz {
+    padding-left: 40px;
+    height: 500px;
+    width: 100%;
 }

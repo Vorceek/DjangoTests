@@ -11,37 +11,40 @@
 </head>
 <body>
     <div class="login-container">
-        <div class="login-logo">
-            <!--<img src="{% static 'login/image/9.png' %}" alt="Logo">-->
-        </div>
-        <div class="login-form">
-            <h2>Login</h2>
-            {% if error %}
-                <p style="color: red;">{{ error|escape }}</p>
-            {% endif %}
-            <form method="post" autocomplete="off">
-                {% csrf_token %}
-                <input type="text" name="username" placeholder="Usuário" required>
-                <input type="password" name="password" placeholder="Senha" required autocomplete="off">
-
-                {% if messages %}
-                {% for message in messages %}
-                    {% if message.tags == "error" %}
-                        <p style="color: red;">{{ message }}</p>
-                    {% endif %}
-                {% endfor %}
+        <div class="pre-login-container">
+            <div class="login-form">
+                <h2>Login</h2>
+                {% if error %}
+                    <p style="color: red;">{{ error|escape }}</p>
                 {% endif %}
-            
+                <form method="post" autocomplete="off">
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Usuário" required>
+                    <input type="password" name="password" placeholder="Senha" required autocomplete="off">
 
-                <button type="submit">Entrar</button>
-                <div class="options">
-                    <label class="remember-me">
-                        <input type="checkbox" name="remember_me" class="lembrar_senha"> Lembrar senha
-                    </label>
-                    <a href="#" class="forgot-password">Esqueci a senha</a>
-                </div>
-            </form>
+                    {% if messages %}
+                    {% for message in messages %}
+                        {% if message.tags == "error" %}
+                            <p style="color: red;">{{ message }}</p>
+                        {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                
+
+                    <button type="submit">Entrar</button>
+                    <div class="options">
+                        <label class="remember-me">
+                            <input type="checkbox" name="remember_me" class="lembrar_senha"> Lembrar senha
+                        </label>
+                        <a href="#" class="forgot-password">Esqueci a senha</a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
+    <div class="image-container">
+        <img class="logo-ja-fiz" src="{% static 'login/image/logo-ja-fiz.png' %}" alt="logo-ja-fiz">
+    </div>
+
 </body>
 </html>
